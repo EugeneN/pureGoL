@@ -1,3 +1,4 @@
 output/**
 bower_components/**
 .idea/**
+public/GoL.js
