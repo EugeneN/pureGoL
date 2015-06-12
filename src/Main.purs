@@ -56,11 +56,14 @@ calculateNewGeneration (State { cells = oldCells
     in
         map unpackNeighbours allNeighbours
 
-addPoint :: State -> Action -> State
-addPoint (State { cells = oldCells
-                , runningState = rs }) (Point y x) = State { cells: updateAt2 y x Alive oldCells
+togglePoint :: Cell -> State -> Number -> Number -> State
+togglePoint cell (State { cells = oldCells
+                        , runningState = rs }) y x = State { cells: updateAt2 y x cell oldCells
                                                            , runningState: rs }
-addPoint s _ = s -- should be error probably
+togglePoint _ s _ _ = s -- should be error probably
+
+addPoint    = togglePoint Alive
+removePoint = togglePoint Dead
 
 main = do
     view <- renderMainView "root_layout" initialState actionsStream
@@ -90,6 +93,7 @@ main = do
   updateState Play          state = playHack  state $ onNext playPauseStream true
   updateState Pause         state = pauseHack state $ onNext playPauseStream false
   updateState Dump          state = proxyLog state
-  updateState p@(Point _ _) state = addPoint state p
+  updateState (Point y x)   state = addPoint state y x
+  updateState (NoPoint y x) state = removePoint state y x
 
 

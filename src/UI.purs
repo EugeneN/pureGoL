@@ -33,7 +33,9 @@ mainView = createClass spec { displayName = "MainView", render = renderFun } whe
                         D.tr {} $
                             map_ (zip row (0 .. (length row))) \(Tuple cell cellIdx) ->
                                 case cell of
-                                    Alive -> D.td { className: "live" } []
+                                    Alive -> D.td { className: "live"
+                                                  , onClick: \_ -> onNext actionsStream (NoPoint rowIdx cellIdx)
+                                                  } []
                                     Dead  -> D.td { className: "dead"
                                                   , onClick: \_ -> onNext actionsStream (Point rowIdx cellIdx)
                                                   } []
