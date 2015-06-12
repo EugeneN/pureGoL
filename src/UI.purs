@@ -15,19 +15,27 @@ import Data.Tuple
 import Data.Array
 
 
-mainView :: ComponentClass { pointsStream :: Rx.Observable Action, cells :: [[Cell]] } {}
+mainView :: ComponentClass { pointsStream :: Rx.Observable Action, state :: State } {}
 mainView = createClass spec { displayName = "MainView", render = renderFun } where
-    renderFun this = pure $
-        D.div { className: "user-info"} [
-            D.table { style: { border: "1px solid gray" } } [
+    renderFun this = render this.props.pointsStream this.props.state
+
+    render pointsStream (State { cells = cells, runningState = runningState }) = pure $
+        D.div { className: "map"} [
+            case runningState of
+                Running -> D.button { onClick: \_ -> onNext pointsStream Pause } [D.rawText "Pause" ]
+                Paused  -> D.button { onClick: \_ -> onNext pointsStream Play  } [D.rawText "Play" ]
+
+          , D.button { onClick: \_ -> onNext pointsStream Dump } [D.rawText "Dump" ]
+
+          , D.table { style: { border: "1px solid gray" } } [
                 D.tbody {} $
-                    map_ (zip this.props.cells (0 .. (length this.props.cells))) \(Tuple row rowIdx) ->
+                    map_ (zip cells (0 .. (length cells))) \(Tuple row rowIdx) ->
                         D.tr {} $
                             map_ (zip row (0 .. (length row))) \(Tuple cell cellIdx) ->
                                 case cell of
                                     Alive -> D.td { className: "live" } []
                                     Dead  -> D.td { className: "dead"
-                                                  , onClick: \_ -> onNext this.props.pointsStream (Point rowIdx cellIdx)
+                                                  , onClick: \_ -> onNext pointsStream (Point rowIdx cellIdx)
                                                   } []
             ]
         ]
@@ -36,5 +44,5 @@ renderMainView :: forall eff. String
                            -> State
                            -> Rx.Observable Action
                            -> Eff (dom :: DOM, react :: React | eff) Component
-renderMainView targetId (State cells) pointsStream =
-    renderComponentById (mainView { pointsStream: pointsStream, cells: cells } []) targetId
+renderMainView targetId state pointsStream =
+    renderComponentById (mainView { pointsStream: pointsStream, state: state } []) targetId

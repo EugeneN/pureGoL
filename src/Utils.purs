@@ -1,6 +1,6 @@
 module Utils where
 
-import Control.Monad.Eff (Eff(..))
+import Control.Monad.Eff
 import DOM (DOM(..))
 import React ( createClass , eventHandler , renderComponentById , spec )
 import React.Types ( Component() , ComponentClass() , Event() , React()
@@ -13,6 +13,10 @@ import Data.Tuple
 
 map_ = flip map
 filter_ = flip filter
+
+foreign import proxyLog
+    """function proxyLog(a) { console.log(a); return a }
+    """ :: forall a. a -> a
 
 updateAt2 :: forall a. Number -> Number -> a -> [[a]] -> [[a]]
 updateAt2 y x newVal arr = map_ (zip arr (0 .. (length arr))) \(Tuple row rowIdx) ->
@@ -46,9 +50,8 @@ foreign import onNext
     """ function onNext(obs){ return function (val) { return obs.onNext(val); } }
     """ :: forall a. Rx.Observable a -> a -> Rx.Observable a
 
-
 foreign import setProps
     """ function setProps(view) { return function(props) { return function(){ return view.setProps(props); } } }
     """ :: forall a eff. a
-                      -> {cells :: [[Cell]], pointsStream :: Rx.Observable Action }
+                      -> { state :: State, pointsStream :: Rx.Observable Action }
                       -> Eff (dom :: DOM, react :: React | eff) Unit

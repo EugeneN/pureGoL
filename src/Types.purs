@@ -1,6 +1,11 @@
 module Types where
 
-data State = State [[Cell]]
-data Action = Point Number Number | Interval
+data State = State { cells :: [[Cell]]
+                   , runningState :: RunStatus }
+
+data Action = Point Number Number | Interval | Pause |  Play | Dump
+
 data Cell = Alive | Dead
+
+data RunStatus = Running | Paused
 
