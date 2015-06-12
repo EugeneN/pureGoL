@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Pure GoL</title>
+
+    <style>
+        .live {
+            background: #000;
+            width: 10px;
+            height: 10px;
+            border: 1px solid gray;
+            cursor: pointer;
+        }
+        .dead {
+            background: #FFF;
+            width: 10px;
+            height: 10px;
+            cursor: pointer;
+            border: 1px solid #F8F8F8;
+        }
+        .dead:hover {
+            border: 1px solid black;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.11.2/react-with-addons.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/rxjs/2.5.3/rx.all.js"></script>
+</head>
+<body>
+<h1>Gol in Purescript</h1>
+<div id="root_layout"></div>
+<script src="./GoL.js"></script>
+</body>
+</html>

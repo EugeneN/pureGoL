@@ -1,0 +1,26 @@
+{
+  "name": "gol",
+  "version": "1.0.0",
+  "moduleType": [
+    "node"
+  ],
+  "dependencies": {
+    "purescript-simple-dom": "waterson/purescript-simple-dom",
+    "purescript-rx": "*",
+    "rxjs": "*",
+    "rxjs-jquery": "*",
+    "purescript-foreign": "*",
+    "purescript-monoid": "*",
+    "react": "~0.11.0",
+    "purescript-react": "joneshf/purescript-react#simplify"
+  },
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "output"
+  ],
+  "resolutions": {
+    "purescript-tuples": "~0.3.0"
+  }
+}
