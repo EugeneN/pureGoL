@@ -17,10 +17,7 @@ import React.Types ( Component() , ComponentClass() , Event() , React()
 import qualified Rx.Observable as Rx
 
 
-
 initialState = State initialCells
-
-
 
 calculateNewGeneration :: State -> State
 calculateNewGeneration (State cells) = State $
@@ -51,13 +48,11 @@ calculateNewGeneration (State cells) = State $
 
         maybeNeighbours = map (\[y, x] -> getByIndex2 cells y x) newCells
         allNeighbours = filter justNeighbour maybeNeighbours
-
-
     in
         map unpackNeighbours allNeighbours
 
 addPoint :: State -> Action -> State
-addPoint (State cells) (Point y x) = State $ updateArray2 cells y x Alive
+addPoint (State cells) (Point y x) = State $ updateAt2 y x Alive cells
 addPoint s _ = s -- should be error probably
 
 main = do
@@ -67,8 +62,8 @@ main = do
 
   where
   intervalStream = (\_ -> Interval) <$> (getIntervalStream 500)
-  pointsStream = getNewObservable 1
-  actionsStream = intervalStream <> pointsStream
+  pointsStream = newSubject 1
+  actionsStream = intervalStream `Rx.merge` pointsStream
   scanStream = Rx.scan updateState initialState actionsStream
 
   updateState :: Action -> State -> State

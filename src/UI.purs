@@ -27,10 +27,8 @@ mainView = createClass spec { displayName = "MainView", render = renderFun } whe
                                 case cell of
                                     Alive -> D.td { className: "live" } []
                                     Dead  -> D.td { className: "dead"
-                                                  , onClick: \_ -> publishToObservable this.props.pointsStream (Point rowIdx cellIdx)
+                                                  , onClick: \_ -> onNext this.props.pointsStream (Point rowIdx cellIdx)
                                                   } []
-
-
             ]
         ]
 
