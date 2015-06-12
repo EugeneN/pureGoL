@@ -47,7 +47,7 @@ foreign import getIntervalStream
 (~>) = Rx.subscribe
 
 foreign import onNext
-    """ function onNext(obs){ return function (val) { console.log('****',val); return obs.onNext(val); } }
+    """ function onNext(obs){ return function (val) { return obs.onNext(val); } }
     """ :: forall a. Rx.Observable a -> a -> Rx.Observable a
 
 foreign import pausable
