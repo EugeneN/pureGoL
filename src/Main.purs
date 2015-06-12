@@ -16,6 +16,7 @@ import React.Types ( Component() , ComponentClass() , Event() , React()
                    , ReactFormEvent() , ReactThis() )
 import qualified Rx.Observable as Rx
 
+initialSpeed = 50
 
 initialState = State { cells: initialCells
                      , runningState: Running }
@@ -69,7 +70,7 @@ main = do
 
 
   where
-  intervalStream = (\_ -> Interval) <$> (getIntervalStream 500)
+  intervalStream = (\_ -> Interval) <$> (getIntervalStream initialSpeed)
   pausableIntervalStream = pausable intervalStream playPauseStream
 
   actionsStream = newSubject 1
