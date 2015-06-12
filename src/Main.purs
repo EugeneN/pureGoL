@@ -62,20 +62,32 @@ addPoint (State { cells = oldCells
 addPoint s _ = s -- should be error probably
 
 main = do
-    view <- renderMainView "root_layout" initialState pointsStream
-    scanStream ~> \s -> setProps view { pointsStream: pointsStream, state: s }
+    view <- renderMainView "root_layout" initialState actionsStream
+    scanStream ~> \s -> setProps view { actionsStream: actionsStream, state: s }
+
+    pure $ onNext playPauseStream true
 
 
   where
   intervalStream = (\_ -> Interval) <$> (getIntervalStream 500)
-  pointsStream = newSubject 1
-  actionsStream = intervalStream `Rx.merge` pointsStream
-  scanStream = Rx.scan updateState initialState actionsStream
+  pausableIntervalStream = pausable intervalStream playPauseStream
+
+  actionsStream = newSubject 1
+  playPauseStream = newSubject 1
+
+  mainStream = pausableIntervalStream `Rx.merge` actionsStream
+  scanStream = Rx.scan updateState initialState mainStream
+
+  playHack :: forall a. State -> a -> State
+  playHack (State s) _ = State (s {runningState = Running })
+
+  pauseHack :: forall a. State -> a -> State
+  pauseHack (State s) _ = State (s {runningState = Paused })
 
   updateState :: Action -> State -> State
   updateState Interval      state = calculateNewGeneration state
-  updateState Play          state = calculateNewGeneration state
-  updateState Pause         state = calculateNewGeneration state
+  updateState Play          state = playHack  state $ onNext playPauseStream true
+  updateState Pause         state = pauseHack state $ onNext playPauseStream false
   updateState Dump          state = proxyLog state
   updateState p@(Point _ _) state = addPoint state p
 

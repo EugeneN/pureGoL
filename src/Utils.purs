@@ -47,11 +47,15 @@ foreign import getIntervalStream
 (~>) = Rx.subscribe
 
 foreign import onNext
-    """ function onNext(obs){ return function (val) { return obs.onNext(val); } }
+    """ function onNext(obs){ return function (val) { console.log('****',val); return obs.onNext(val); } }
     """ :: forall a. Rx.Observable a -> a -> Rx.Observable a
+
+foreign import pausable
+    """ function pausable(obs){ return function (pauser) { return obs.pausable(pauser); } }
+    """ :: forall a b. Rx.Observable a -> Rx.Observable b -> Rx.Observable a
 
 foreign import setProps
     """ function setProps(view) { return function(props) { return function(){ return view.setProps(props); } } }
     """ :: forall a eff. a
-                      -> { state :: State, pointsStream :: Rx.Observable Action }
+                      -> { state :: State, actionsStream :: Rx.Observable Action }
                       -> Eff (dom :: DOM, react :: React | eff) Unit
