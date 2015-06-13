@@ -10,14 +10,9 @@ import Data.Maybe
 import Data.Tuple
 import Data.Array
 import Control.Monad.Eff (Eff(..))
-import DOM (DOM(..))
-import React ( createClass , eventHandler , renderComponentById , spec )
-import React.Types ( Component() , ComponentClass() , Event() , React()
-                   , ReactFormEvent() , ReactThis() )
 import qualified Rx.Observable as Rx
 
 initialSpeed = 50
-
 initialState = State { cells: initialCells
                      , runningState: Running }
 
@@ -39,31 +34,25 @@ calculateNewGeneration (State { cells = oldCells
   isAlive Alive = true
   isAlive Dead  = false
 
-  justNeighbour :: Maybe Cell -> Boolean
-  justNeighbour Nothing  = false
-  justNeighbour _        = true
-
-  unpackNeighbours :: Maybe Cell -> Cell
-  unpackNeighbours (Just x) = x
-
   findNeighbours :: Number -> Number -> [[Cell]] -> [Cell]
-  findNeighbours y x cells =
-    let newCells = [ [y-1, x-1], [y,   x-1], [y+1, x-1], [y-1, x]
-                   , [y+1, x],   [y-1, x+1], [y,   x+1], [y+1, x+1] ]
-
-        maybeNeighbours = map (\[y, x] -> getByIndex2 cells y x) newCells
-        allNeighbours = filter justNeighbour maybeNeighbours
-    in
-        map unpackNeighbours allNeighbours
+  findNeighbours y x cells = catMaybes maybeNeighbours
+    where
+      maybeNeighbours = map (\[y, x] -> getByIndex2 cells y x) newCells
+      newCells = [ [y-1, x-1], [y,   x-1], [y+1, x-1], [y-1, x]
+                 , [y+1, x],   [y-1, x+1], [y,   x+1], [y+1, x+1] ]
 
 togglePoint :: Cell -> State -> Number -> Number -> State
 togglePoint cell (State { cells = oldCells
                         , runningState = rs }) y x = State { cells: updateAt2 y x cell oldCells
                                                            , runningState: rs }
-togglePoint _ s _ _ = s -- should be error probably
-
 addPoint    = togglePoint Alive
 removePoint = togglePoint Dead
+
+playHack :: forall a. State -> a -> State
+playHack (State s) _ = State (s {runningState = Running })
+
+pauseHack :: forall a. State -> a -> State
+pauseHack (State s) _ = State (s {runningState = Paused })
 
 main = do
     view <- renderMainView "root_layout" initialState actionsStream
@@ -82,12 +71,6 @@ main = do
   mainStream = pausableIntervalStream `Rx.merge` actionsStream
   scanStream = Rx.scan updateState initialState mainStream
 
-  playHack :: forall a. State -> a -> State
-  playHack (State s) _ = State (s {runningState = Running })
-
-  pauseHack :: forall a. State -> a -> State
-  pauseHack (State s) _ = State (s {runningState = Paused })
-
   updateState :: Action -> State -> State
   updateState Interval      state = calculateNewGeneration state
   updateState Play          state = playHack  state $ onNext playPauseStream true
@@ -95,5 +78,3 @@ main = do
   updateState Dump          state = proxyLog state
   updateState (Point y x)   state = addPoint state y x
   updateState (NoPoint y x) state = removePoint state y x
-
-

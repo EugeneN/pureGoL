@@ -7,9 +7,8 @@ import Debug.Trace
 import Control.Monad.Eff (Eff(..))
 import DOM (DOM(..))
 import qualified React.DOM as D
-import React ( createClass , eventHandler , renderComponentById , spec )
-import React.Types ( Component() , ComponentClass() , Event() , React()
-                   , ReactFormEvent() , ReactThis() )
+import React (createClass, eventHandler, renderComponentById, spec)
+import React.Types (Component(), ComponentClass(), Event(), React())
 import qualified Rx.Observable as Rx
 import Data.Tuple
 import Data.Array
@@ -22,10 +21,10 @@ mainView = createClass spec { displayName = "MainView", render = renderFun } whe
     render actionsStream (State { cells = cells, runningState = runningState }) = pure $
         D.div { className: "map"} [
             case runningState of
-                Running -> D.button { onClick: \_ -> onNext actionsStream Pause } [D.rawText "Pause" ]
+                Running -> D.button { onClick: \_ -> onNext actionsStream Pause } [D.rawText "Pause"]
                 Paused  -> D.button { onClick: \_ -> onNext actionsStream Play  } [D.rawText "Play" ]
 
-          , D.button { onClick: \_ -> onNext actionsStream Dump } [D.rawText "Dump" ]
+          , D.button { onClick: \_ -> onNext actionsStream Dump } [D.rawText "Save"]
 
           , D.table { style: { border: "1px solid gray" } } [
                 D.tbody {} $
