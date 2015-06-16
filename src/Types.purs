@@ -7,7 +7,13 @@ instance showState :: Show State where
     show (State s) = "State { cells: " ++ show s.cells
                         ++ ", runningState: " ++ show s.runningState ++ "}"
 
-data Action = Point Number Number | NoPoint Number Number | Tick | Pause |  Play | Save
+data Action = Point Number Number
+            | NoPoint Number Number
+            | Tick
+            | Pause
+            | Play
+            | Save
+            | NewCells [[Cell]]
 
 instance showAction :: Show Action where
     show (Point y x)   = "Point(" ++ show y ++ ", " ++ show x ++ ")"
@@ -16,6 +22,7 @@ instance showAction :: Show Action where
     show Play          = "Play"
     show Pause         = "Pause"
     show Save          = "Save"
+    show (NewCells cs) = "NewCells " ++ show cs
 
 data Cell = Alive | Dead
 
