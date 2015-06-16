@@ -26,7 +26,7 @@ updateAt2 y x newVal arr = map_ (zip arr (0 .. (length arr))) \(Tuple row rowIdx
         else row
 
 getByIndex2 :: forall a. [[a]] -> Number -> Number -> Maybe a
-getByIndex2 arr x y = (return arr) >>= ((flip (!!)) x) >>= ((flip (!!)) y)
+getByIndex2 arr x y = return arr >>= (flip (!!) $ x) >>= (flip (!!) $ y)
 
 foreign import newSubject
     """ var newSubject = function () { return new Rx.Subject() }
