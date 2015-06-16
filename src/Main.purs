@@ -22,7 +22,6 @@ main = do
 
   pure $ onNext playPauseStream true
 
-
   where
   intervalStream = (\_ -> Tick) <$> (getIntervalStream initialSpeed)
   pausableIntervalStream = pausable intervalStream playPauseStream
