@@ -1,15 +1,15 @@
 module Utils where
 
 import Control.Monad.Eff
-import DOM (DOM(..))
-import React ( createClass , eventHandler , renderComponentById , spec )
-import React.Types ( Component() , ComponentClass() , Event() , React()
-                   , ReactFormEvent() , ReactThis() )
-import qualified Rx.Observable as Rx
-import Types
 import Data.Array
+import Data.Function
 import Data.Maybe
 import Data.Tuple
+import DOM (DOM(..))
+import React.Types (Component(), React())
+import qualified Rx.Observable as Rx
+
+import Types
 
 map_ = flip map
 filter_ = flip filter
@@ -22,11 +22,8 @@ updateAt2 :: forall a. Number -> Number -> a -> [[a]] -> [[a]]
 updateAt2 y x newVal arr = map_ (zip arr (0 .. (length arr))) \(Tuple row rowIdx) ->
     if rowIdx == y
         then map_ (zip row (0 .. (length row))) \(Tuple oldVal columnIdx) ->
-            if columnIdx == x
-                then newVal
-                else oldVal
+            if columnIdx == x then newVal else oldVal
         else row
-
 
 getByIndex2 :: forall a. [[a]] -> Number -> Number -> Maybe a
 getByIndex2 arr x y = case arr !! x of
@@ -36,8 +33,8 @@ getByIndex2 arr x y = case arr !! x of
     Nothing  -> Nothing
 
 foreign import newSubject
-    """ function newSubject(x) { return new Rx.Subject() }
-    """ :: forall a b. a -> Rx.Observable b
+    """ var newSubject = function () { return new Rx.Subject() }
+    """ :: forall a. Fn0 (Rx.Observable a)
 
 foreign import getIntervalStream
     """ function getIntervalStream(interval) { return Rx.Observable.interval(interval) }
@@ -56,6 +53,6 @@ foreign import pausable
 
 foreign import setProps
     """ function setProps(view) { return function(props) { return function(){ return view.setProps(props); } } }
-    """ :: forall a eff. a
-                      -> { state :: State, actionsStream :: Rx.Observable Action }
+    """ :: forall a eff. Component
+                      -> a
                       -> Eff (dom :: DOM, react :: React | eff) Unit

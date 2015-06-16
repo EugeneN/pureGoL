@@ -2,16 +2,16 @@ module UI where
 
 import Types
 import Utils
-import Debug.Trace
 
 import Control.Monad.Eff (Eff(..))
+import Data.Array
+import Data.Tuple
+import Debug.Trace
 import DOM (DOM(..))
 import qualified React.DOM as D
 import React (createClass, eventHandler, renderComponentById, spec)
 import React.Types (Component(), ComponentClass(), Event(), React())
 import qualified Rx.Observable as Rx
-import Data.Tuple
-import Data.Array
 
 
 mainView :: ComponentClass { actionsStream :: Rx.Observable Action, state :: State } {}
