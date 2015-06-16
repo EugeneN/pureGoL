@@ -2,3 +2,4 @@ output/**
 bower_components/**
 .idea/**
 public/GoL.js
+.psci_modules/**

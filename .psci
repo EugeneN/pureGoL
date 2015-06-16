@@ -1,3 +1,5 @@
+:m src/Core.purs
+:m src/Data.purs
 :m src/Main.purs
 :m src/Types.purs
 :m src/UI.purs
