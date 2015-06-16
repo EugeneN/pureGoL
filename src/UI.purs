@@ -1,5 +1,6 @@
 module UI where
 
+import Data
 import Types
 import Utils
 
@@ -25,6 +26,9 @@ mainView = createClass spec { displayName = "MainView", render = renderFun } whe
                 Paused  -> D.button { onClick: \_ -> onNext actionsStream Play  } [D.rawText "Play" ]
 
           , D.button { onClick: \_ -> onNext actionsStream Save } [D.rawText "Save"]
+
+          --, D.button { onClick: \_ -> onNext actionsStream (NewCells initialCells)  } [D.rawText "Cells 1"]
+          --, D.button { onClick: \_ -> onNext actionsStream (NewCells initialCells2) } [D.rawText "Cells 2"]
 
           , D.table { style: { border: "1px solid gray" } } [
                 D.tbody {} $

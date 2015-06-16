@@ -43,10 +43,9 @@ initialCells = [
  [Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead,Dead]
  ]
 
-{-
-initialCells = [ [Dead,  Dead,  Dead,  Dead,  Dead ]
-               , [Dead,  Dead,  Dead,  Dead,  Dead ]
-               , [Dead,  Alive, Alive, Dead,  Dead ]
-               , [Dead,  Alive, Alive, Dead,  Alive]
-               , [Dead,  Dead,  Dead,  Dead,  Dead ] ]
--}
+
+initialCells2 = [ [Dead,  Dead,  Dead,  Dead,  Dead ]
+                , [Dead,  Dead,  Dead,  Dead,  Dead ]
+                , [Dead,  Alive, Alive, Dead,  Dead ]
+                , [Dead,  Alive, Alive, Dead,  Alive]
+                , [Dead,  Dead,  Dead,  Dead,  Dead ] ]

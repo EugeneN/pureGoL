@@ -36,7 +36,7 @@ calculateNewGeneration (State s) = State (s { cells = calcNewCells s.cells })
 
   findNeighbours :: Number -> Number -> [[Cell]] -> [Cell]
   findNeighbours y x cells = catMaybes maybeNeighbours
-    where
+      where
       maybeNeighbours = map (\[y, x] -> getByIndex2 cells y x) newCells
       newCells = [ [y-1, x-1], [y,   x-1], [y+1, x-1], [y-1, x]
                  , [y+1, x],   [y-1, x+1], [y,   x+1], [y+1, x+1] ]
