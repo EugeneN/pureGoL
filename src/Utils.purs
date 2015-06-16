@@ -49,6 +49,4 @@ foreign import pausable
 
 foreign import setProps
     """ function setProps(view) { return function(props) { return function(){ return view.setProps(props); } } }
-    """ :: forall a eff. Component
-                      -> a
-                      -> Eff (dom :: DOM, react :: React | eff) Unit
+    """ :: forall a eff. Component -> a -> Eff (dom :: DOM, react :: React | eff) Unit
