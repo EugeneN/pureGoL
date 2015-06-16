@@ -6,10 +6,13 @@ import Utils
 import UI
 import Data
 
+import Data.Maybe.Unsafe (fromJust)
 import Data.Maybe
 import Data.Tuple
 import Data.Array
-import Control.Monad.Eff (Eff(..))
+import Control.Monad.Eff (Eff(..), runPure)
+import Control.Apply
+import Control.Alt
 import qualified Rx.Observable as Rx
 
 initialSpeed = 50
@@ -48,11 +51,12 @@ togglePoint cell (State { cells = oldCells
 addPoint    = togglePoint Alive
 removePoint = togglePoint Dead
 
-playHack :: forall a. State -> a -> State
-playHack (State s) _ = State (s {runningState = Running })
-
-pauseHack :: forall a. State -> a -> State
-pauseHack (State s) _ = State (s {runningState = Paused })
+play :: Rx.Observable Boolean -> State -> State
+play playPauseStream  (State s) = fromJust $ (pure $ onNext playPauseStream true) *>
+                                             (pure $ State (s {runningState = Running }))
+pause :: Rx.Observable Boolean -> State -> State
+pause playPauseStream (State s) = fromJust $ (pure $ onNext playPauseStream false) *>
+                                             (pure $ State (s {runningState = Paused }))
 
 main = do
     view <- renderMainView "root_layout" initialState actionsStream
@@ -62,19 +66,20 @@ main = do
 
 
   where
-  intervalStream = (\_ -> Interval) <$> (getIntervalStream initialSpeed)
+  intervalStream = (\_ -> Tick) <$> (getIntervalStream initialSpeed)
   pausableIntervalStream = pausable intervalStream playPauseStream
 
   actionsStream = newSubject 1
   playPauseStream = newSubject 1
 
-  mainStream = pausableIntervalStream `Rx.merge` actionsStream
+  mainStream = pausableIntervalStream <|> actionsStream
   scanStream = Rx.scan updateState initialState mainStream
 
   updateState :: Action -> State -> State
-  updateState Interval      state = calculateNewGeneration state
-  updateState Play          state = playHack  state $ onNext playPauseStream true
-  updateState Pause         state = pauseHack state $ onNext playPauseStream false
-  updateState Dump          state = proxyLog state
+  updateState Tick          state = calculateNewGeneration state
+  updateState Play          state = play playPauseStream state
+  updateState Pause         state = pause playPauseStream state
+  updateState Save          state = proxyLog state
   updateState (Point y x)   state = addPoint state y x
   updateState (NoPoint y x) state = removePoint state y x
+  -- updateState (NewCells cs) state = ?

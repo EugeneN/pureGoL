@@ -24,7 +24,7 @@ mainView = createClass spec { displayName = "MainView", render = renderFun } whe
                 Running -> D.button { onClick: \_ -> onNext actionsStream Pause } [D.rawText "Pause"]
                 Paused  -> D.button { onClick: \_ -> onNext actionsStream Play  } [D.rawText "Play" ]
 
-          , D.button { onClick: \_ -> onNext actionsStream Dump } [D.rawText "Save"]
+          , D.button { onClick: \_ -> onNext actionsStream Save } [D.rawText "Save"]
 
           , D.table { style: { border: "1px solid gray" } } [
                 D.tbody {} $
