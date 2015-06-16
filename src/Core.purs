@@ -5,6 +5,7 @@ module Core
   , play
   , pause
   , setNewCells
+  , updateState
   ) where
 
 import Control.Apply
@@ -47,11 +48,20 @@ togglePoint newCell (State s) y x = State (s { cells = updateAt2 y x newCell s.c
 addPoint    = togglePoint Alive
 removePoint = togglePoint Dead
 
-toggle :: Boolean -> RunStatus -> Rx.Observable Boolean -> State -> State
-toggle cmd rs playPauseStream  (State s) = fromJust $ (pure $ onNext playPauseStream cmd) *>
-                                                      (pure $ State (s {runningState = rs }))
+toggle :: Boolean -> RunStatus -> State -> Rx.Observable Boolean -> State
+toggle cmd rs (State s) playPauseStream = fromJust $ (pure $ onNext playPauseStream cmd) *>
+                                                     (pure $ State (s {runningState = rs }))
 play  = toggle true Running
 pause = toggle false Paused
 
 setNewCells :: State -> [[Cell]] -> State
 setNewCells (State s) cs = State (s { cells = cs })
+
+updateState :: Rx.Observable Boolean ->  Action -> State -> State
+updateState _ Tick          state = calculateNewGeneration state
+updateState o Play          state = play state o
+updateState o Pause         state = pause state o
+updateState _ Save          state = proxyLog state
+updateState _ (Point y x)   state = addPoint state y x
+updateState _ (NoPoint y x) state = removePoint state y x
+updateState _ (NewCells cs) state = setNewCells state cs

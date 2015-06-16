@@ -31,13 +31,6 @@ main = do
   playPauseStream = runFn0 newSubject
 
   mainStream = pausableIntervalStream <|> actionsStream
-  scanStream = Rx.scan updateState initialState mainStream
+  scanStream = Rx.scan (updateState playPauseStream) initialState mainStream
 
-  updateState :: Action -> State -> State
-  updateState Tick          state = calculateNewGeneration state
-  updateState Play          state = play playPauseStream state
-  updateState Pause         state = pause playPauseStream state
-  updateState Save          state = proxyLog state
-  updateState (Point y x)   state = addPoint state y x
-  updateState (NoPoint y x) state = removePoint state y x
-  updateState (NewCells cs) state = setNewCells state cs
+
