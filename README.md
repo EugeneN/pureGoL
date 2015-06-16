@@ -1,6 +1,7 @@
 # pureGoL
 
 See http://eugenen.github.io/pureGoL/
+
 # Module Documentation
 
 ## Module Core
@@ -11,6 +12,8 @@ See http://eugenen.github.io/pureGoL/
 calculateNewGeneration :: State -> State
 ```
 
+This is the heart of GoL. It calculates a new generation based on
+previous one and the rules.
 
 #### `setNewCells`
 
@@ -25,6 +28,7 @@ setNewCells :: State -> [[Cell]] -> State
 updateState :: Rx.Observable Boolean -> Action -> State -> State
 ```
 
+This is the application's state machine. It maps `Action`s to new `State`s
 
 
 ## Module Data

@@ -18,7 +18,8 @@ import qualified Rx.Observable as Rx
 import Types
 import Utils
 
-
+-- | This is the heart of GoL. It calculates a new generation based on
+-- | previous one and the rules.
 calculateNewGeneration :: State -> State
 calculateNewGeneration (State s) = State (s { cells = calcNewCells s.cells })
   where
@@ -57,6 +58,8 @@ pause = toggle false Paused
 setNewCells :: State -> [[Cell]] -> State
 setNewCells (State s) cs = State (s { cells = cs })
 
+
+-- | This is the application's state machine. It maps `Action`s to new `State`s
 updateState :: Rx.Observable Boolean ->  Action -> State -> State
 updateState _ Tick          state = calculateNewGeneration state
 updateState o Play          state = play state o
