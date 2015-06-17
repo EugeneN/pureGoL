@@ -4,9 +4,12 @@ import Data.Maybe
 
 type Generation = [[Cell]]
 
+foreign import data Datetime :: *
+
 data State = State { cells :: [Generation]
                    , runningState :: RunStatus
-                   , current :: Maybe Number }
+                   , current :: Maybe Number
+                   , startTime :: Datetime }
 
 instance showState :: Show State where
     show (State s) = "State { cells: " ++ show s.cells

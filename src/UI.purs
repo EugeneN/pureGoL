@@ -7,6 +7,7 @@ import Core
 
 import Control.Monad.Eff (Eff(..))
 import Data.Array
+import Data.Function
 import Data.Maybe
 import Data.Tuple
 import Debug.Trace
@@ -23,12 +24,13 @@ mainView = createClass spec { displayName = "MainView", render = renderFun } whe
 
 
 
-    render actionsStream s@(State { runningState = runningState, current = current }) =
-        let currentGeneration = getCurrentGeneration s
-            totalGenerations = getTotalGenerations s
+    render actionsStream state@(State s) =
+        let currentGeneration = getCurrentGeneration state
+            totalGenerations = getTotalGenerations state
+            genSecRatio = toFixed ((timeDelta s.startTime (runFn0 now)) / totalGenerations) 2
         in pure $
             D.div { className: "map"} [
-                case runningState of
+                case s.runningState of
                     Running -> D.button { className: "icon-button", onClick: \_ -> onNext actionsStream Pause } [D.rawText "▮▮"]
                     Paused  -> D.button { className: "icon-button", onClick: \_ -> onNext actionsStream Play  } [D.rawText "▶" ]
 
@@ -37,7 +39,7 @@ mainView = createClass spec { displayName = "MainView", render = renderFun } whe
               --, D.button { onClick: \_ -> onNext actionsStream (NewCells initialCells)  } [D.rawText "Cells 1"]
               --, D.button { onClick: \_ -> onNext actionsStream (NewCells initialCells2) } [D.rawText "Cells 2"]
 
-              , D.span { className: "label" } [D.rawText $ "Current generation: " ++ case current of
+              , D.span { className: "label" } [D.rawText $ "Current generation: " ++ case s.current of
                                                                      Nothing -> "Latest"
                                                                      Just x -> show x ]
 
@@ -45,6 +47,8 @@ mainView = createClass spec { displayName = "MainView", render = renderFun } whe
 
               , D.button { className: "icon-button", onClick: \_ -> onNext actionsStream (Rewind 1)   } [D.rawText "⏪"]
               , D.button { className: "icon-button", onClick: \_ -> onNext actionsStream (FForward 1) } [D.rawText "⏩"]
+
+              , D.span { className: "label" } [D.rawText $ "Generations/sec: " ++ show genSecRatio ]
 
               , D.table { style: { border: "1px solid gray", "margin-top": "10px" } } [
                     D.tbody {} $

@@ -13,11 +13,6 @@ import UI
 import Utils
 
 
-initialSpeed = 50
-initialState = State { cells: [initialCells]
-                     , runningState: Running
-                     , current: Nothing }
-
 main = do
   view <- renderMainView "root_layout" initialState actionsStream
   scanStream ~> \s -> setProps view { actionsStream: actionsStream, state: s }
@@ -25,6 +20,12 @@ main = do
   pure $ onNext playPauseStream true
 
   where
+  initialSpeed = 50
+  initialState = State { cells: [initialCells]
+                       , runningState: Running
+                       , current: Nothing
+                       , startTime: runFn0 now }
+
   intervalStream = (\_ -> Tick) <$> (getIntervalStream initialSpeed)
   pausableIntervalStream = pausable intervalStream playPauseStream
 

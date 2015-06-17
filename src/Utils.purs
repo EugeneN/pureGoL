@@ -28,6 +28,18 @@ updateAt2 y x newVal arr = map_ (zip arr (0 .. (length arr))) \(Tuple row rowIdx
 getByIndex2 :: forall a. [[a]] -> Number -> Number -> Maybe a
 getByIndex2 arr x y = return arr >>= (flip (!!) $ x) >>= (flip (!!) $ y)
 
+foreign import now
+    """var now = function () { return new Date() }
+    """ :: forall a. Fn0 Datetime
+
+foreign import timeDelta
+    """function timeDelta(a) { return function(b) { return b - a } }
+    """ :: Datetime -> Datetime -> Number
+
+foreign import toFixed
+    """function toFixed(x) { return function(n) { return x.toFixed(n) } }
+    """ :: Number -> Number -> Number
+
 foreign import newSubject
     """ var newSubject = function () { return new Rx.Subject() }
     """ :: forall a. Fn0 (Rx.Observable a)
