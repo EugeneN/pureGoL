@@ -2,6 +2,7 @@ module Main where
 
 import Control.Alt
 import Data.Function
+import Data.Maybe
 import Debug.Trace
 import qualified Rx.Observable as Rx
 
@@ -13,8 +14,9 @@ import Utils
 
 
 initialSpeed = 50
-initialState = State { cells: initialCells
-                     , runningState: Running }
+initialState = State { cells: [initialCells]
+                     , runningState: Running
+                     , current: Nothing }
 
 main = do
   view <- renderMainView "root_layout" initialState actionsStream

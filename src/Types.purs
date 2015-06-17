@@ -1,7 +1,12 @@
 module Types where
 
-data State = State { cells :: [[Cell]]
-                   , runningState :: RunStatus }
+import Data.Maybe
+
+type Generation = [[Cell]]
+
+data State = State { cells :: [Generation]
+                   , runningState :: RunStatus
+                   , current :: Maybe Number }
 
 instance showState :: Show State where
     show (State s) = "State { cells: " ++ show s.cells
@@ -13,7 +18,9 @@ data Action = Point Number Number
             | Pause
             | Play
             | Save
-            | NewCells [[Cell]]
+            | NewCells Generation
+            | Rewind Number
+            | FForward Number
 
 instance showAction :: Show Action where
     show (Point y x)   = "Point(" ++ show y ++ ", " ++ show x ++ ")"
@@ -23,6 +30,8 @@ instance showAction :: Show Action where
     show Pause         = "Pause"
     show Save          = "Save"
     show (NewCells cs) = "NewCells " ++ show cs
+    show (Rewind x)    = "Rewind " ++ show x
+    show (FForward x)  = "FForward " ++ show x
 
 data Cell = Alive | Dead
 
