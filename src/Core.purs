@@ -41,12 +41,38 @@ rewind n (State s) =
     in State (s { current = Just boundedNewCurrent })
 
 fforward :: Number -> State -> State
-fforward n (State s) =
+fforward n state@(State s) =
     let maxIndex = (length s.cells) - 1
-        newCurrent = case s.current of
-                        Just x  -> if x + n > maxIndex then Nothing else Just (x + n)
-                        Nothing -> Nothing
-    in State (s { current = newCurrent })
+    in case s.current of
+        Just x ->
+            State (s { current = (if x + n > maxIndex then Nothing else Just (x + n)) })
+
+        Nothing ->
+            saveNewGeneration (State (s { current = Nothing }))
+                              (genNewGeneration (getCurrentGeneration state))
+
+genNewGeneration :: Generation -> Generation
+genNewGeneration currentGeneration = calcNewCells currentGeneration
+    where
+    calcNewCells cells =
+        map_ (zip cells (0 .. (length cells))) \(Tuple row rowIdx) ->
+            map_ (zip row (0 .. (length row))) \(Tuple cell cellIdx) ->
+                let neighbours = findNeighbours rowIdx cellIdx cells
+                    liveCount = length (filter isAlive neighbours)
+                in case cell of
+                    Alive -> if liveCount < 2 || liveCount > 3 then Dead else Alive
+                    Dead  -> if liveCount == 3 then Alive else Dead
+
+    isAlive :: Cell -> Boolean
+    isAlive Alive = true
+    isAlive Dead  = false
+
+    findNeighbours :: Number -> Number -> Generation -> [Cell]
+    findNeighbours y x cells = catMaybes maybeNeighbours
+        where
+        maybeNeighbours = map (\[y, x] -> getByIndex2 cells y x) newCells
+        newCells = [ [y-1, x-1], [y,   x-1], [y+1, x-1], [y-1, x  ]
+                   , [y+1, x  ], [y-1, x+1], [y,   x+1], [y+1, x+1] ]
 
 -- | This is the heart of GoL. It calculates a new generation based on
 -- | previous one and the rules.
@@ -54,26 +80,7 @@ calculateNewGeneration :: State -> State
 calculateNewGeneration state = saveNewGeneration state newGeneration
   where
   currentGeneration = getCurrentGeneration state
-  newGeneration = calcNewCells currentGeneration
-  calcNewCells cells =
-      map_ (zip cells (0 .. (length cells))) \(Tuple row rowIdx) ->
-          map_ (zip row (0 .. (length row))) \(Tuple cell cellIdx) ->
-              let neighbours = findNeighbours rowIdx cellIdx cells
-                  liveCount = length (filter isAlive neighbours)
-              in case cell of
-                  Alive -> if liveCount < 2 || liveCount > 3 then Dead else Alive
-                  Dead  -> if liveCount == 3 then Alive else Dead
-
-  isAlive :: Cell -> Boolean
-  isAlive Alive = true
-  isAlive Dead  = false
-
-  findNeighbours :: Number -> Number -> Generation -> [Cell]
-  findNeighbours y x cells = catMaybes maybeNeighbours
-      where
-      maybeNeighbours = map (\[y, x] -> getByIndex2 cells y x) newCells
-      newCells = [ [y-1, x-1], [y,   x-1], [y+1, x-1], [y-1, x  ]
-                 , [y+1, x  ], [y-1, x+1], [y,   x+1], [y+1, x+1] ]
+  newGeneration = genNewGeneration currentGeneration
 
 togglePoint :: Cell -> State -> Number -> Number -> State
 togglePoint newCell state y x = saveNewGeneration state newGeneration
