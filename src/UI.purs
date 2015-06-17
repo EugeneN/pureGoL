@@ -42,8 +42,8 @@ mainView = createClass spec { displayName = "MainView", render = renderFun } whe
                   , D.span { className: "label" } [D.rawText $ "Gen/sec: " ++ show genSec ]
                 ]
               , D.div { className: "toolbar" } [
-                    D.button { className: "icon-button", onClick: \_ -> onNext actionsStream (Rewind 1)   } [D.rawText "⏪"]
-                  , D.button { className: "icon-button", onClick: \_ -> onNext actionsStream (FForward 1) } [D.rawText "⏩"]
+                    D.button { className: "icon-button", onClick: \_ -> onNext actionsStream (Rewind 1)   } [D.rawText "◀◀"]
+                  , D.button { className: "icon-button", onClick: \_ -> onNext actionsStream (FForward 1) } [D.rawText "▶▶"]
 
                   , D.span { className: "label" } [D.rawText $ "Current generation: " ++ case s.current of
                                                                          Nothing -> "Latest"
