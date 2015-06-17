@@ -41,16 +41,18 @@ rewind n (State s) =
     in State (s { current = Just boundedNewCurrent })
 
 fforward :: Number -> State -> State
-fforward n state@(State s) =
-    let maxIndex = (length s.cells) - 1
-    in case s.current of
-        Just x ->
-            State (s { current = (if x + n > maxIndex then Nothing else Just (x + n)) })
+fforward n state@(State s) = case s.current of
+    Just x ->
+        let maxIndex = (length s.cells) - 1
+            newCurrent = if x + n > maxIndex then Nothing else Just (x + n)
+        in State (s { current = newCurrent })
 
-        Nothing ->
-            saveNewGeneration (State (s { current = Nothing }))
-                              (genNewGeneration (getCurrentGeneration state))
+    Nothing ->
+        saveNewGeneration (State (s { current = Nothing }))
+                          ((getCurrentGeneration >>> genNewGeneration) state)
 
+-- | This is the heart of GoL. It calculates a new generation based on
+-- | previous one and the rules.
 genNewGeneration :: Generation -> Generation
 genNewGeneration currentGeneration = calcNewCells currentGeneration
     where
@@ -74,13 +76,10 @@ genNewGeneration currentGeneration = calcNewCells currentGeneration
         newCells = [ [y-1, x-1], [y,   x-1], [y+1, x-1], [y-1, x  ]
                    , [y+1, x  ], [y-1, x+1], [y,   x+1], [y+1, x+1] ]
 
--- | This is the heart of GoL. It calculates a new generation based on
--- | previous one and the rules.
 calculateNewGeneration :: State -> State
 calculateNewGeneration state = saveNewGeneration state newGeneration
   where
-  currentGeneration = getCurrentGeneration state
-  newGeneration = genNewGeneration currentGeneration
+  newGeneration = (getCurrentGeneration >>> genNewGeneration) state
 
 togglePoint :: Cell -> State -> Number -> Number -> State
 togglePoint newCell state y x = saveNewGeneration state newGeneration
