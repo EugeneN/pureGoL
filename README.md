@@ -33,8 +33,6 @@ saveNewGeneration :: State -> Generation -> State
 calculateNewGeneration :: State -> State
 ```
 
-This is the heart of GoL. It calculates a new generation based on
-previous one and the rules.
 
 #### `updateState`
 
