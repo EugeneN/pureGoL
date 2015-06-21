@@ -95,14 +95,14 @@ pause = toggleTicks Paused
 
 -- | This is the application's state machine. It maps `Action`s to new `State`s
 updateStateFactory :: Rx.Observable Boolean ->  (Action -> State -> State)
-updateStateFactory o = updateState
+updateStateFactory playPauseStream = updateState
   where
   updateState Tick          state = calculateNewGeneration state
-  updateState Play          state = play o state
-  updateState Pause         state = pause o state
+  updateState Play          state = play playPauseStream state
+  updateState Pause         state = pause playPauseStream state
   updateState Save          state = proxyLog state
   updateState (Point y x)   state = addPoint state y x
   updateState (NoPoint y x) state = removePoint state y x
   updateState (NewCells cs) state = saveNewGeneration state cs
-  updateState (Rewind n)    state = (pause o >>> rewind n) state
-  updateState (FForward n)  state = (pause o >>> fforward n) state
+  updateState (Rewind n)    state = (pause playPauseStream >>> rewind n) state
+  updateState (FForward n)  state = (pause playPauseStream >>> fforward n) state
