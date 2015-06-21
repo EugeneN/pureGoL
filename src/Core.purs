@@ -8,17 +8,30 @@ module Core
   , getTotalGenerations
   , getCurrentGeneration
   , saveNewGeneration
+  , initialSpeed
+  , initialState
   ) where
 
 import Control.Apply
 import Data.Array
+import Data.Function
 import Data.Maybe
 import Control.Monad.Eff (runPure)
 import Data.Tuple
 import qualified Rx.Observable as Rx
 
+import Data
 import Types
 import Utils
+
+initialSpeed = 50
+initialState = State { cells: [initialCells]
+                     , runningState: Running
+                     , current: Nothing
+                     , startTime: runFn0 now
+                     , secondsElapsed: 0
+                     , genCounter: 0
+                     , genRatio: 0 }
 
 getTotalGenerations :: State -> Number
 getTotalGenerations (State s) = length s.cells
@@ -29,7 +42,8 @@ getCurrentGeneration (State s) = case s.current of
     Just idx -> maybe [[]] id $ s.cells !! idx
 
 saveNewGeneration :: State -> Generation -> State
-saveNewGeneration (State s) ng = State (s { cells = snoc s.cells ng })
+saveNewGeneration (State s) ng = State (s { cells = snoc s.cells ng
+                                          , genCounter = s.genCounter + 1 })
 
 rewind :: Number -> State -> State
 rewind n (State s) =
@@ -100,6 +114,12 @@ toggle :: Rx.Observable Boolean -> State -> State
 toggle playPauseStream state@(State s) | s.runningState == Running = pause playPauseStream state
                                        | s.runningState == Paused  = play playPauseStream state
 
+updateTimer :: State -> State
+updateTimer state@(State s) = State (s { secondsElapsed = toFixed ((timeDelta s.startTime (runFn0 now)) / 1000) 2
+                                       , genCounter = 0
+                                       , genRatio = s.genCounter
+                                       })
+
 -- | This is the application's state machine. It maps `Action`s to new `State`s
 updateStateFactory :: Rx.Observable Boolean ->  (Action -> State -> State)
 updateStateFactory playPauseStream = updateState
@@ -114,3 +134,4 @@ updateStateFactory playPauseStream = updateState
   updateState (NewCells cs) state = saveNewGeneration state cs
   updateState (Rewind n)    state = (pause playPauseStream >>> rewind n) state
   updateState (FForward n)  state = (pause playPauseStream >>> fforward n) state
+  updateState Timer         state = updateTimer state

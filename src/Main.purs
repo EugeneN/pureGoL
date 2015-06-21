@@ -8,7 +8,6 @@ import Debug.Trace
 import qualified Rx.Observable as Rx
 
 import Core
-import Data
 import KeyCodes
 import Types
 import UI
@@ -24,11 +23,7 @@ main = do
   pure $ onNext playPauseStream true
 
   where
-  initialSpeed = 50
-  initialState = State { cells: [initialCells]
-                       , runningState: Running
-                       , current: Nothing
-                       , startTime: runFn0 now }
+  timerStream = (\_ -> Timer) <$> (getIntervalStream 1000)
 
   intervalStream = (\_ -> Tick) <$> (getIntervalStream initialSpeed)
   pausableIntervalStream = pausable intervalStream playPauseStream
@@ -36,7 +31,7 @@ main = do
   actionsStream = runFn0 newSubject
   playPauseStream = runFn0 newSubject
 
-  mainStream = pausableIntervalStream <|> actionsStream
+  mainStream = pausableIntervalStream <|> actionsStream <|> timerStream
   scanStream = Rx.scan (updateStateFactory playPauseStream) initialState mainStream
 
   rawKeysStream = fromEvent "keyup"

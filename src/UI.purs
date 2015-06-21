@@ -7,7 +7,7 @@ import Core
 
 import Control.Monad.Eff (Eff(..))
 import Data.Array
-import Data.Function
+
 import Data.Maybe
 import Data.Tuple
 import Debug.Trace
@@ -27,8 +27,6 @@ mainView = createClass spec { displayName = "MainView", render = renderFun } whe
     render actionsStream state@(State s) =
         let currentGeneration = getCurrentGeneration state
             totalGenerations = getTotalGenerations state
-            timeElapsed = toFixed ((timeDelta s.startTime (runFn0 now)) / 1000) 2
-            genSec = toFixed (totalGenerations / timeElapsed) 2
         in pure $
             D.div { className: "map"} [
                 D.div { className: "toolbar" } [
@@ -38,8 +36,8 @@ mainView = createClass spec { displayName = "MainView", render = renderFun } whe
 
                   , D.button { onClick: \_ -> onNext actionsStream Save } [D.rawText "Save"]
 
-                  , D.span { className: "label" } [D.rawText $ "Time elapsed, s: " ++ show timeElapsed ]
-                  , D.span { className: "label" } [D.rawText $ "Gen/sec: " ++ show genSec ]
+                  , D.span { className: "label" } [D.rawText $ "Time elapsed, s: " ++ show s.secondsElapsed ]
+                  , D.span { className: "label" } [D.rawText $ "Gen/sec: " ++ show s.genRatio ]
                 ]
               , D.div { className: "toolbar" } [
                     D.button { className: "icon-button", onClick: \_ -> onNext actionsStream (Rewind 1)   } [D.rawText "◀◀"]

@@ -12,7 +12,11 @@ foreign import data Datetime :: *
 data State = State { cells        :: [Generation]
                    , runningState :: RunStatus
                    , current      :: Maybe Number
-                   , startTime    :: Datetime }
+                   , startTime    :: Datetime
+                   , secondsElapsed :: Number
+                   , genCounter     :: Number
+                   , genRatio       :: Number
+                   }
 
 instance showState :: Show State where
     show (State s) = "State { cells: " ++ show s.cells
@@ -31,6 +35,7 @@ data Action = Point Number Number
             | NewCells Generation
             | Rewind Number
             | FForward Number
+            | Timer
 
 instance showAction :: Show Action where
     show (Point y x)   = "Point(" ++ show y ++ ", " ++ show x ++ ")"
@@ -43,6 +48,7 @@ instance showAction :: Show Action where
     show (NewCells cs) = "NewCells " ++ show cs
     show (Rewind x)    = "Rewind " ++ show x
     show (FForward x)  = "FForward " ++ show x
+    show Timer         = "Timer"
 
 data Cell = Alive | Dead
 
