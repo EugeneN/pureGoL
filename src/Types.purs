@@ -6,14 +6,20 @@ type Generation = [[Cell]]
 
 foreign import data Datetime :: *
 
-data State = State { cells :: [Generation]
+-- instance showDatetime :: Show Datetime where
+    -- show = toString
+
+data State = State { cells        :: [Generation]
                    , runningState :: RunStatus
-                   , current :: Maybe Number
-                   , startTime :: Datetime }
+                   , current      :: Maybe Number
+                   , startTime    :: Datetime }
 
 instance showState :: Show State where
     show (State s) = "State { cells: " ++ show s.cells
-                        ++ ", runningState: " ++ show s.runningState ++ "}"
+                        ++ ", runningState: " ++ show s.runningState
+                        ++ ", current: " ++ show s.current
+                        ++ ", startTime: " ++ "show s.startTime"
+                        ++ "}"
 
 data Action = Point Number Number
             | NoPoint Number Number
