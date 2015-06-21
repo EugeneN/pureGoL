@@ -57,7 +57,7 @@ mainView = createClass spec { displayName = "MainView", render = renderFun } whe
                                                           , D.rawText " - toggle play/pause, "
                                                           , D.span {className: "button-like"} [D.rawText "⟵"]
                                                           , D.span {className: "button-like"} [D.rawText "⟶"]
-                                                          , D.rawText " - navigate genrations. Or use buttons above."
+                                                          , D.rawText " - navigate generations. Or use buttons above."
                                                           ]
               ]
 
