@@ -83,14 +83,15 @@ togglePoint newCell state y x = saveNewGeneration state newGeneration
 addPoint    = togglePoint Alive
 removePoint = togglePoint Dead
 
-toggle :: Boolean -> RunStatus -> Rx.Observable Boolean -> State -> State
-
-toggle cmd rs playPauseStream (State s) = runPure (do
-    pure $ onNext playPauseStream cmd
+toggleTicks :: RunStatus -> Rx.Observable Boolean -> State -> State
+toggleTicks rs playPauseStream (State s) = runPure (do
+    pure $ onNext playPauseStream $ case rs of
+                                        Running -> true
+                                        Paused  -> false
     pure $ State (s {runningState = rs}))
 
-play  = toggle true Running
-pause = toggle false Paused
+play  = toggleTicks Running
+pause = toggleTicks Paused
 
 -- | This is the application's state machine. It maps `Action`s to new `State`s
 updateStateFactory :: Rx.Observable Boolean ->  (Action -> State -> State)
