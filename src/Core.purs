@@ -24,6 +24,7 @@ import Data
 import Types
 import Utils
 
+emptyGeneration = [[]] :: Generation
 initialSpeed = 50
 initialState = State { cells: [initialCells]
                      , runningState: Running
@@ -38,8 +39,8 @@ getTotalGenerations (State s) = length s.cells
 
 getCurrentGeneration :: State -> Generation
 getCurrentGeneration (State s) = case s.current of
-    Nothing  -> maybe [[]] id $ last s.cells
-    Just idx -> maybe [[]] id $ s.cells !! idx
+    Nothing  -> maybe emptyGeneration id $ last s.cells
+    Just idx -> maybe emptyGeneration id $ s.cells !! idx
 
 saveNewGeneration :: State -> Generation -> State
 saveNewGeneration (State s) ng = State (s { cells = snoc s.cells ng
@@ -84,8 +85,9 @@ genNewGeneration currentGeneration = calcNewCells currentGeneration
     findNeighbours y x cells = catMaybes maybeNeighbours
         where
         maybeNeighbours = map (\[y, x] -> getByIndex2 cells y x) newCells
-        newCells = [ [y-1, x-1], [y,   x-1], [y+1, x-1], [y-1, x  ]
-                   , [y+1, x  ], [y-1, x+1], [y,   x+1], [y+1, x+1] ]
+        newCells = [ [y-1, x-1], [y-1, x  ], [y-1, x+1],
+                     [y,   x-1],             [y,   x+1],
+                     [y+1, x-1], [y+1, x  ], [y+1, x+1] ]
 
 calculateNewGeneration :: State -> State
 calculateNewGeneration state = saveNewGeneration state newGeneration

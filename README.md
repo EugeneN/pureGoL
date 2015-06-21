@@ -1,6 +1,9 @@
 # pureGoL
 
+This is a Game of Life written in Purescript using Rx and React.
+
 See http://eugenen.github.io/pureGoL/
+
 
 # Module Documentation
 
@@ -34,16 +37,60 @@ calculateNewGeneration :: State -> State
 ```
 
 
-#### `updateState`
+#### `updateStateFactory`
 
 ``` purescript
-updateState :: Rx.Observable Boolean -> Action -> State -> State
+updateStateFactory :: Rx.Observable Boolean -> Action -> State -> State
 ```
 
 This is the application's state machine. It maps `Action`s to new `State`s
 
 
 ## Module Data
+
+
+## Module KeyCodes
+
+#### `KeyCode`
+
+``` purescript
+data KeyCode
+  = Insert
+  | Escape
+  | Enter
+  | Delete
+  | F1
+  | F2
+  | F3
+  | F4
+  | F5
+  | Space
+  | LeftArrow
+  | RightArrow
+  | UnknownKey Number
+```
+
+
+#### `keyEventToKeyCode`
+
+``` purescript
+keyEventToKeyCode :: forall a. a -> KeyCode
+```
+
+
+#### `eqKeyCode`
+
+``` purescript
+instance eqKeyCode :: Eq KeyCode
+```
+
+
+#### `which`
+
+``` purescript
+which :: forall a. a -> Number
+```
+
 
 
 ## Module Main
@@ -69,9 +116,8 @@ data Datetime :: *
 
 ``` purescript
 data State
-  = State { startTime :: Datetime, current :: Maybe Number, runningState :: RunStatus, cells :: [Generation] }
+  = State { genRatio :: Number, genCounter :: Number, secondsElapsed :: Number, startTime :: Datetime, current :: Maybe Number, runningState :: RunStatus, cells :: [Generation] }
 ```
-
 
 #### `showState`
 
@@ -86,13 +132,15 @@ instance showState :: Show State
 data Action
   = Point Number Number
   | NoPoint Number Number
-  | Tick 
-  | Pause 
-  | Play 
-  | Save 
+  | Tick
+  | Pause
+  | Play
+  | Toggle
+  | Save
   | NewCells Generation
   | Rewind Number
   | FForward Number
+  | Timer
 ```
 
 
@@ -107,8 +155,15 @@ instance showAction :: Show Action
 
 ``` purescript
 data Cell
-  = Alive 
-  | Dead 
+  = Alive
+  | Dead
+```
+
+
+#### `eqCell`
+
+``` purescript
+instance eqCell :: Eq Cell
 ```
 
 
@@ -123,8 +178,8 @@ instance showCell :: Show Cell
 
 ``` purescript
 data RunStatus
-  = Running 
-  | Paused 
+  = Running
+  | Paused
 ```
 
 
@@ -132,6 +187,13 @@ data RunStatus
 
 ``` purescript
 instance showRunStatus :: Show RunStatus
+```
+
+
+#### `eqRunStatus`
+
+``` purescript
+instance eqRunStatus :: Eq RunStatus
 ```
 
 
@@ -211,13 +273,6 @@ getIntervalStream :: forall a. Number -> Rx.Observable a
 ```
 
 
-#### `(~>)`
-
-``` purescript
-(~>) :: forall eff a. Rx.Observable a -> (a -> Eff eff Unit) -> Eff eff Unit
-```
-
-
 #### `onNext`
 
 ``` purescript
@@ -236,6 +291,13 @@ pausable :: forall a b. Rx.Observable a -> Rx.Observable b -> Rx.Observable a
 
 ``` purescript
 setProps :: forall a eff. Component -> a -> Eff (react :: React, dom :: DOM | eff) Unit
+```
+
+
+#### `fromEvent`
+
+``` purescript
+fromEvent :: forall eff z. String -> Rx.Observable z
 ```
 
 
