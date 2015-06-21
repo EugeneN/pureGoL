@@ -4,7 +4,7 @@ module Core
   , removePoint
   , play
   , pause
-  , updateState
+  , updateStateFactory
   , getTotalGenerations
   , getCurrentGeneration
   , saveNewGeneration
@@ -12,7 +12,6 @@ module Core
 
 import Control.Apply
 import Data.Array
-import Data.Maybe.Unsafe (fromJust)
 import Data.Maybe
 import Control.Monad.Eff (runPure)
 import Data.Tuple
@@ -48,8 +47,7 @@ fforward n state@(State s) = case s.current of
         in State (s { current = newCurrent })
 
     Nothing ->
-        saveNewGeneration (State (s { current = Nothing }))
-                          ((getCurrentGeneration >>> genNewGeneration) state)
+        saveNewGeneration state ((getCurrentGeneration >>> genNewGeneration) state)
 
 -- | This is the heart of GoL. It calculates a new generation based on
 -- | previous one and the rules.
@@ -60,14 +58,10 @@ genNewGeneration currentGeneration = calcNewCells currentGeneration
         map_ (zip cells (0 .. (length cells))) \(Tuple row rowIdx) ->
             map_ (zip row (0 .. (length row))) \(Tuple cell cellIdx) ->
                 let neighbours = findNeighbours rowIdx cellIdx cells
-                    liveCount = length (filter isAlive neighbours)
+                    liveCount = length (filter ((==) Alive) neighbours)
                 in case cell of
                     Alive -> if liveCount < 2 || liveCount > 3 then Dead else Alive
                     Dead  -> if liveCount == 3 then Alive else Dead
-
-    isAlive :: Cell -> Boolean
-    isAlive Alive = true
-    isAlive Dead  = false
 
     findNeighbours :: Number -> Number -> Generation -> [Cell]
     findNeighbours y x cells = catMaybes maybeNeighbours
@@ -90,19 +84,24 @@ addPoint    = togglePoint Alive
 removePoint = togglePoint Dead
 
 toggle :: Boolean -> RunStatus -> Rx.Observable Boolean -> State -> State
-toggle cmd rs playPauseStream (State s) = fromJust $ (pure $ onNext playPauseStream cmd) *>
-                                                     (pure $ State (s {runningState = rs }))
+
+toggle cmd rs playPauseStream (State s) = runPure (do
+    pure $ onNext playPauseStream cmd
+    pure $ State (s {runningState = rs}))
+
 play  = toggle true Running
 pause = toggle false Paused
 
 -- | This is the application's state machine. It maps `Action`s to new `State`s
-updateState :: Rx.Observable Boolean ->  Action -> State -> State
-updateState _ Tick          state = calculateNewGeneration state
-updateState o Play          state = play o state
-updateState o Pause         state = pause o state
-updateState _ Save          state = proxyLog state
-updateState _ (Point y x)   state = addPoint state y x
-updateState _ (NoPoint y x) state = removePoint state y x
-updateState _ (NewCells cs) state = saveNewGeneration state cs
-updateState o (Rewind n)    state = (pause o >>> rewind n) state
-updateState o (FForward n)  state = (pause o >>> fforward n) state
+updateStateFactory :: Rx.Observable Boolean ->  (Action -> State -> State)
+updateStateFactory o = updateState
+  where
+  updateState Tick          state = calculateNewGeneration state
+  updateState Play          state = play o state
+  updateState Pause         state = pause o state
+  updateState Save          state = proxyLog state
+  updateState (Point y x)   state = addPoint state y x
+  updateState (NoPoint y x) state = removePoint state y x
+  updateState (NewCells cs) state = saveNewGeneration state cs
+  updateState (Rewind n)    state = (pause o >>> rewind n) state
+  updateState (FForward n)  state = (pause o >>> fforward n) state

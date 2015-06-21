@@ -48,9 +48,6 @@ foreign import getIntervalStream
     """ function getIntervalStream(interval) { return Rx.Observable.interval(interval) }
     """ :: forall a. Number -> Rx.Observable a
 
-(~>) :: forall eff a. Rx.Observable a -> (a -> Eff eff Unit) -> Eff eff Unit
-(~>) = Rx.subscribe
-
 foreign import onNext
     """ function onNext(obs){ return function (val) { return obs.onNext(val); } }
     """ :: forall a. Rx.Observable a -> a -> Rx.Observable a

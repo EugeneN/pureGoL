@@ -15,7 +15,7 @@ import Utils
 
 main = do
   view <- renderMainView "root_layout" initialState actionsStream
-  scanStream ~> \s -> setProps view { actionsStream: actionsStream, state: s }
+  scanStream `Rx.subscribe` \s -> setProps view { actionsStream: actionsStream, state: s }
 
   pure $ onNext playPauseStream true
 
@@ -33,6 +33,6 @@ main = do
   playPauseStream = runFn0 newSubject
 
   mainStream = pausableIntervalStream <|> actionsStream
-  scanStream = Rx.scan (updateState playPauseStream) initialState mainStream
+  scanStream = Rx.scan (updateStateFactory playPauseStream) initialState mainStream
 
 

@@ -38,6 +38,14 @@ instance showAction :: Show Action where
 
 data Cell = Alive | Dead
 
+instance eqCell :: Eq Cell where
+    (==) Alive Alive = true
+    (==) Dead Dead   = true
+    (==) _ _         = false
+
+    (/=) a b         = not $ (==) a b
+
+
 instance showCell :: Show Cell where
     show Alive = "Alive"
     show Dead  = "Dead"
