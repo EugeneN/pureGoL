@@ -59,9 +59,12 @@ genNewGeneration currentGeneration = calcNewCells currentGeneration
             map_ (zip row (0 .. (length row))) \(Tuple cell cellIdx) ->
                 let neighbours = findNeighbours rowIdx cellIdx cells
                     liveCount = length (filter ((==) Alive) neighbours)
-                in case cell of
-                    Alive -> if liveCount < 2 || liveCount > 3 then Dead else Alive
-                    Dead  -> if liveCount == 3 then Alive else Dead
+                in lifeStep liveCount cell
+
+    lifeStep :: Number -> Cell -> Cell
+    lifeStep liveCount cell = case cell of
+        Alive -> if liveCount < 2 || liveCount > 3 then Dead else Alive
+        Dead  -> if liveCount == 3 then Alive else Dead
 
     findNeighbours :: Number -> Number -> Generation -> [Cell]
     findNeighbours y x cells = catMaybes maybeNeighbours
