@@ -26,6 +26,7 @@ data Action = Point Number Number
             | Tick
             | Pause
             | Play
+            | Toggle
             | Save
             | NewCells Generation
             | Rewind Number
@@ -37,6 +38,7 @@ instance showAction :: Show Action where
     show Tick          = "Tick"
     show Play          = "Play"
     show Pause         = "Pause"
+    show Toggle        = "Toggle"
     show Save          = "Save"
     show (NewCells cs) = "NewCells " ++ show cs
     show (Rewind x)    = "Rewind " ++ show x
@@ -62,3 +64,9 @@ instance showRunStatus :: Show RunStatus where
     show Running = "Running"
     show Paused  = "Paused"
 
+instance eqRunStatus :: Eq RunStatus where
+    (==) Running Running = true
+    (==) Paused  Paused  = true
+    (==) _       _       = false
+
+    (/=) a       b       = not $ (==) a b

@@ -96,6 +96,10 @@ toggleTicks rs playPauseStream (State s) = runPure (do
 play  = toggleTicks Running
 pause = toggleTicks Paused
 
+toggle :: Rx.Observable Boolean -> State -> State
+toggle playPauseStream state@(State s) | s.runningState == Running = pause playPauseStream state
+                                       | s.runningState == Paused  = play playPauseStream state
+
 -- | This is the application's state machine. It maps `Action`s to new `State`s
 updateStateFactory :: Rx.Observable Boolean ->  (Action -> State -> State)
 updateStateFactory playPauseStream = updateState
@@ -103,6 +107,7 @@ updateStateFactory playPauseStream = updateState
   updateState Tick          state = calculateNewGeneration state
   updateState Play          state = play playPauseStream state
   updateState Pause         state = pause playPauseStream state
+  updateState Toggle        state = toggle playPauseStream state
   updateState Save          state = proxyLog state
   updateState (Point y x)   state = addPoint state y x
   updateState (NoPoint y x) state = removePoint state y x

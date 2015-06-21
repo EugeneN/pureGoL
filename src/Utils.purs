@@ -59,3 +59,7 @@ foreign import pausable
 foreign import setProps
     """ function setProps(view) { return function(props) { return function(){ return view.setProps(props); } } }
     """ :: forall a eff. Component -> a -> Eff (dom :: DOM, react :: React | eff) Unit
+
+foreign import fromEvent
+  """function fromEvent(ev) { return Rx.Observable.fromEvent(document.body, ev) }
+  """ :: forall eff z. String -> (Rx.Observable z)

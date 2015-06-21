@@ -1,6 +1,7 @@
 module Main where
 
 import Control.Alt
+import Control.Monad.Eff (Eff(..))
 import Data.Function
 import Data.Maybe
 import Debug.Trace
@@ -8,6 +9,7 @@ import qualified Rx.Observable as Rx
 
 import Core
 import Data
+import KeyCodes
 import Types
 import UI
 import Utils
@@ -16,6 +18,8 @@ import Utils
 main = do
   view <- renderMainView "root_layout" initialState actionsStream
   scanStream `Rx.subscribe` \s -> setProps view { actionsStream: actionsStream, state: s }
+
+  keysStream `Rx.subscribe` keyCommand
 
   pure $ onNext playPauseStream true
 
@@ -35,4 +39,16 @@ main = do
   mainStream = pausableIntervalStream <|> actionsStream
   scanStream = Rx.scan (updateStateFactory playPauseStream) initialState mainStream
 
+  rawKeysStream = fromEvent "keyup"
+  keysStream = keyEventToKeyCode <$> rawKeysStream
+
+  keyToAction :: KeyCode -> Action
+  keyToAction Space      = Toggle
+  keyToAction LeftArrow  = Rewind 1
+  keyToAction RightArrow = FForward 1
+
+  keyCommand :: forall eff. KeyCode -> Eff eff Unit
+  keyCommand key = do
+    pure $ onNext actionsStream (keyToAction key)
+    pure unit
 
