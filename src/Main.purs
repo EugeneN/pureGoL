@@ -42,13 +42,16 @@ main = do
   rawKeysStream = fromEvent "keyup"
   keysStream = keyEventToKeyCode <$> rawKeysStream
 
-  keyToAction :: KeyCode -> Action
-  keyToAction Space      = Toggle
-  keyToAction LeftArrow  = Rewind 1
-  keyToAction RightArrow = FForward 1
+  keyToAction :: KeyCode -> Maybe Action
+  keyToAction Space      = Just Toggle
+  keyToAction LeftArrow  = Just $ Rewind 1
+  keyToAction RightArrow = Just $ FForward 1
+  keyToAction _          = Nothing
 
   keyCommand :: forall eff. KeyCode -> Eff eff Unit
-  keyCommand key = do
-    pure $ onNext actionsStream (keyToAction key)
-    pure unit
+  keyCommand key = case keyToAction key of
+      Just action -> do
+          pure $ onNext actionsStream action
+          pure unit
+      Nothing -> pure unit
 

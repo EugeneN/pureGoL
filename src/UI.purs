@@ -52,6 +52,15 @@ mainView = createClass spec { displayName = "MainView", render = renderFun } whe
                   , D.span { className: "label" } [D.rawText $ "Total generations: " ++ show totalGenerations  ]
               ]
 
+              , D.div { className: "toolbar" } [
+                    D.span { style: {"fontSize": "80%"} } [ D.span {className: "button-like"} [D.rawText "Space"]
+                                                          , D.rawText " - toggle play/pause, "
+                                                          , D.span {className: "button-like"} [D.rawText "⟵"]
+                                                          , D.span {className: "button-like"} [D.rawText "⟶"]
+                                                          , D.rawText " - navigate genrations. Or use buttons above."
+                                                          ]
+              ]
+
               , D.table { style: { border: "1px solid gray", "margin-top": "10px" } } [
                     D.tbody {} $
                         map_ (zip currentGeneration (0 .. (length currentGeneration))) \(Tuple row rowIdx) ->
