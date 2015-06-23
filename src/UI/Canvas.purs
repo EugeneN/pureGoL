@@ -1,4 +1,4 @@
-module UICanvas where
+module UI.Canvas where
 
 import Data
 import Types
@@ -17,10 +17,12 @@ import Data.Maybe
 import Data.Tuple
 import Debug.Trace
 import DOM (DOM(..))
-import qualified React.DOM as D
-import React (createClass, eventHandler, renderComponentById, spec)
-import React.Types (Component(), ComponentClass(), Event(), React())
+
 import qualified Rx.Observable as Rx
+
+import Data.DOM.Simple.Types (HTMLElement(..))
+import Data.DOM.Simple.Window
+import Data.DOM.Simple.Events
 
 type Color = String
 
@@ -37,9 +39,14 @@ gridColor   = "#F8F8F8"
 cellColor   = black
 labelColor  = black
 
+-- bindEventListeners canvas = do
+--     let clicksStream = fromElementEvent canvas "click"
 
-renderCanvas :: forall e. State -> Eff (canvas :: Canvas | e) Unit
-renderCanvas state@(State s) = do
+--     clicksStream `Rx.subscribe` \x -> 
+
+
+renderCanvas :: forall e. State -> Rx.Observable Action -> Eff (canvas :: Canvas | e) Unit
+renderCanvas state@(State s) actionsStream = do
     Just canvas <- getCanvasElementById "canvas"
     ctx <- getContext2D canvas
 
@@ -86,7 +93,7 @@ drawLabels ctx state@(State s) = do
     fillText ctx ("Time elapsed, s: " ++ show s.secondsElapsed) 5 40
     fillText ctx ("Gen/sec: " ++ show s.genRatio) 350 40
 
-    fillText ctx ("Current generation: " ++ show (getCurrentGenerationLabel s.current)) 5 60
+    fillText ctx ("Current generation: " ++ (getCurrentGenerationLabel s.current)) 5 60
     fillText ctx ("Total generations: " ++ show (getTotalGenerations state)) 350 60
 
     setFont "12px Source Code Pro" ctx

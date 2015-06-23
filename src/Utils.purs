@@ -8,6 +8,7 @@ import Data.Tuple
 import DOM (DOM(..))
 import React.Types (Component(), React())
 import qualified Rx.Observable as Rx
+import Data.DOM.Simple.Types (HTMLElement(..))
 
 import Types
 
@@ -63,3 +64,7 @@ foreign import setProps
 foreign import fromEvent
   """function fromEvent(ev) { return Rx.Observable.fromEvent(document.body, ev) }
   """ :: forall eff z. String -> (Rx.Observable z)
+
+foreign import fromElementEvent
+  """function fromElementEvent(el) { return function(ev) { return Rx.Observable.fromEvent(el, ev) } }
+  """ :: forall eff z. HTMLElement -> String -> (Rx.Observable z)    

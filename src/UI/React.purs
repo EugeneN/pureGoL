@@ -1,4 +1,4 @@
-module UI where
+module UI.React where
 
 import Data
 import Types
