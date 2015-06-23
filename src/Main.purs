@@ -11,12 +11,14 @@ import Core
 import KeyCodes
 import Types
 import UI
+import UICanvas
 import Utils
 
 
 main = do
-  view <- renderMainView "root_layout" initialState actionsStream
-  scanStream `Rx.subscribe` \s -> setProps view { actionsStream: actionsStream, state: s }
+  --view <- renderMainView "root_layout" initialState actionsStream
+  -- scanStream `Rx.subscribe` \s -> setProps view { actionsStream: actionsStream, state: s }
+  scanStream `Rx.subscribe` \s -> renderCanvas s
 
   keysStream `Rx.subscribe` keyCommand
 
