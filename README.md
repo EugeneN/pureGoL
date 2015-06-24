@@ -14,7 +14,16 @@ data BL2UIChannel = Rx.Observable State
 data UI2BLChannel = Rx.Observable Action
 ```
 
-See http://eugenen.github.io/pureGoL/
+Obviously it should be possible to abstract over Rx.Observable like this:
+
+```
+data BL2UIChannel = forall a. Reactive' a => a State
+data UI2BLChannel = forall a. Reactive' a => a Action
+```
+
+where `Reactive'` means any, well, reactive mechanism.
+
+See http://eugenen.github.io/pureGoL/ for demo.
 
 
 # Module Documentation
