@@ -155,8 +155,8 @@ drawBorders ctx minX minY maxX maxY = do
     beginPath ctx
 
     moveTo ctx minX minY
-    lineTo ctx maxX minY
-    lineTo ctx maxX maxY
+    lineTo ctx (maxX + cellSize) minY
+    lineTo ctx (maxX + cellSize) maxY
     lineTo ctx minX maxY
     lineTo ctx minX minY
 
