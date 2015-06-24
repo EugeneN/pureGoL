@@ -23,8 +23,6 @@ mainView :: ComponentClass { actionsStream :: Rx.Observable Action, state :: Sta
 mainView = createClass spec { displayName = "MainView", render = renderFun } where
     renderFun this = render this.props.actionsStream this.props.state
 
-
-
     render actionsStream state@(State s) =
         let currentGeneration = getCurrentGeneration state
             totalGenerations = getTotalGenerations state
@@ -82,7 +80,7 @@ renderMainView :: forall eff. String
 renderMainView targetId state actionsStream =
     renderComponentById (mainView { actionsStream: actionsStream, state: state } []) targetId
 
-setupUI :: forall e. State -> Rx.Observable Action -> String 
+setupUI :: forall e. State -> Rx.Observable Action -> String
                   -> Eff (dom :: DOM, react :: React, trace :: Trace | e) (Rx.Observable State)
 setupUI initialState actionsStream targetId = do
     view <- renderMainView targetId initialState actionsStream

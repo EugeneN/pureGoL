@@ -33,7 +33,7 @@ setupUI state actionsStream _ = do
 
     printCells state = trace $ charCells
         where
-        currentGeneration   = getCurrentGeneration state
+        currentGeneration = getCurrentGeneration state
         charCells = foldRows currentGeneration
 
         foldRows = foldl (\acc row -> acc ++ "\n" ++ (foldRow row)) ""

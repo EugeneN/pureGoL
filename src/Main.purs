@@ -27,7 +27,6 @@ main = do
                 _         -> UICanvas.setupUI  initialState actionsStream "canvas"
 
   scanStream `Rx.subscribe` \s -> void $ pure $ onNext vStream s
-
   keysStream `Rx.subscribe` keyCommand
 
   pure $ onNext playPauseStream true
@@ -55,8 +54,6 @@ main = do
 
   keyCommand :: forall eff. KeyCode -> Eff eff Unit
   keyCommand key = case keyToAction key of
-      Just action -> do
-          pure $ onNext actionsStream action
-          pure unit
-      Nothing -> pure unit
+      Just action -> void $ pure $ onNext actionsStream action
+      Nothing     -> pure unit
 
