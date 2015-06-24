@@ -78,7 +78,7 @@ setupUI state actionsStream canvasId = do
     eventToCoords e = Tuple e.pageX e.pageY
 
     coordsInField (Tuple x y) = x > fieldOffsetLeft
-                             && x < fieldOffsetLeft + fieldWidth 
+                             && x < fieldOffsetLeft + fieldWidth
                              && y > fieldOffsetTop
                              && y < fieldOffsetTop + fieldHeight -- XXX FIXME
 
@@ -150,7 +150,7 @@ drawLabels ctx state@(State s) = do
 
 drawBorders :: forall e. Context2D
                       -> Number -> Number -> Number -> Number
-                      ->  Eff (canvas :: Canvas | e) Unit
+                      -> Eff (canvas :: Canvas | e) Unit
 drawBorders ctx minX minY maxX maxY = do
     save ctx
 

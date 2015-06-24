@@ -17,7 +17,7 @@ foreign import exportGlobal
   """ :: forall e a. String -> (Number -> Number -> Eff e Unit) -> Eff e Unit
 
 
-setupUI :: forall e. State -> Rx.Observable Action -> String -> Eff ( trace :: Trace | e) (Rx.Observable State)
+setupUI :: forall e. State -> Rx.Observable Action -> String -> Eff (trace :: Trace | e) (Rx.Observable State)
 setupUI state actionsStream _ = do
     let vStream = runFn0 newSubject
 
@@ -31,7 +31,7 @@ setupUI state actionsStream _ = do
 
     where
 
-    printCells state = trace $ charCells
+    printCells state = trace charCells
         where
         currentGeneration = getCurrentGeneration state
         charCells = foldRows currentGeneration
