@@ -65,8 +65,6 @@ foreign import fromEvent
   """function fromEvent(ev) { return Rx.Observable.fromEvent(document.body, ev) }
   """ :: forall eff z. String -> (Rx.Observable z)
 
-
-
 foreign import mathRound
     """function mathRound(f) {return Math.round(f) }
     """ :: Number -> Number    
@@ -82,3 +80,14 @@ foreign import getElementOffsetLeft
 foreign import getElementOffsetTop
     """function getElementOffsetTop(el){return document.getElementById(el).offsetTop } 
     """ :: forall a e. a -> Number
+
+foreign import getParameterByName
+    """function getParameterByName(name) {
+         return function() {
+           name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+           var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+               results = regex.exec(location.search);
+           return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+         }
+       }
+    """ :: forall e. String -> Eff e String

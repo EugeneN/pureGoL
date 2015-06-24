@@ -58,9 +58,7 @@
             padding: 2px 5px 2px 5px;
             margin-right: 5px;
         }
-        canvas {
-            border: 1px solid red;
-        }
+
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.11.2/react-with-addons.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/rxjs/2.5.3/rx.all.js"></script>
@@ -68,6 +66,10 @@
 </head>
 <body>
 <h1>Game of Life in Purescript</h1>
+
+<div style="margin-bottom: 1em;">
+    <a href="?ui=react">React</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="?ui=canvas">Canvas</a>
+</div>
 
 <div id="root_layout"></div>
 <canvas id="canvas" width="1000px" height="500px"></canvas>

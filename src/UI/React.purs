@@ -8,6 +8,7 @@ import Core
 import Control.Monad.Eff (Eff(..))
 import Data.Array
 
+import Data.Function
 import Data.Maybe
 import Data.Tuple
 import Debug.Trace
@@ -80,3 +81,13 @@ renderMainView :: forall eff. String
                            -> Eff (dom :: DOM, react :: React | eff) Component
 renderMainView targetId state actionsStream =
     renderComponentById (mainView { actionsStream: actionsStream, state: state } []) targetId
+
+setupUI :: forall e. State -> Rx.Observable Action -> String 
+                  -> Eff (dom :: DOM, react :: React, trace :: Trace | e) (Rx.Observable State)
+setupUI initialState actionsStream targetId = do
+    view <- renderMainView targetId initialState actionsStream
+
+    let vStream = runFn0 newSubject
+    vStream `Rx.subscribe` (\s -> setProps view { actionsStream: actionsStream, state: s })
+
+    pure vStream

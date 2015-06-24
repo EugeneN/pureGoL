@@ -48,8 +48,8 @@ foreign import fromUiEvent
   """function fromUiEvent(el) {return function(ev) {return Rx.Observable.fromEvent(el, ev) } }
   """ :: forall a e. e -> UIEvent -> Rx.Observable a
 
-setupCanvasUI :: forall e. Rx.Observable Action -> String -> Eff (canvas :: Canvas, trace :: Trace | e) (Rx.Observable State)
-setupCanvasUI actionsStream canvasId = do
+setupUI :: forall e. State -> Rx.Observable Action -> String -> Eff (canvas :: Canvas, trace :: Trace | e) (Rx.Observable State)
+setupUI state actionsStream canvasId = do
     Just canvas <- getCanvasElementById canvasId
 
     let rawClicksStream = fromUiEvent canvas "click"
@@ -66,10 +66,14 @@ setupCanvasUI actionsStream canvasId = do
     where
     postUpstream (Tuple x y) = void $ pure $ onNext actionsStream (TogglePoint y x)
 
+    currentGeneration   = getCurrentGeneration state
+    width               = getWidth currentGeneration
+    height              = getHeight currentGeneration
+    fieldWidth          = width * cellSize
+    fieldHeight         = height * cellSize
+
     fieldOffsetTop = topOffset + (getElementOffsetTop "canvas")
     fieldOffsetLeft = leftOffset + (getElementOffsetLeft "canvas")
-    fieldWidth = 1000  -- XXX FIXME
-    fieldHeight = 1000 -- XXX FIXME
 
     eventToCoords e = Tuple e.pageX e.pageY
 

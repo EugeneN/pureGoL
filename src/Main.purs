@@ -10,16 +10,18 @@ import qualified Rx.Observable as Rx
 import Core
 import KeyCodes
 import Types
-import UI.React
-import UI.Canvas
+import qualified UI.React as UIReact
+import qualified UI.Canvas as UICanvas
 import Utils
 
 
 main = do
-  --view <- renderMainView "root_layout" initialState actionsStream
-  -- scanStream `Rx.subscribe` \s -> setProps view { actionsStream: actionsStream, state: s }
+  uiParam <- getParameterByName "ui"
 
-  vStream <- setupCanvasUI actionsStream "canvas"
+  vStream <- case uiParam of
+                "react"  -> UIReact.setupUI initialState actionsStream "root_layout"
+                _        -> UICanvas.setupUI initialState actionsStream "canvas"
+
   scanStream `Rx.subscribe` \s -> void $ pure $ onNext vStream s
 
   keysStream `Rx.subscribe` keyCommand
