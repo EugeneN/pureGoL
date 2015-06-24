@@ -21,8 +21,19 @@ data BL2UIChannel = forall a. Reactive' a => a State
 data UI2BLChannel = forall a. Reactive' a => a Action
 ```
 
-where `Reactive'` means any, well, reactive mechanism.
+where `Reactive'` means any, well, reactive mechanism. Even more abstracted signature looks like this:
 
+```purescript
+data UIComponent m input output = forall e. Reactive' m => input -> m output -> Eff e (m input)
+```
+where 
+- input - type of input state
+- output - type of actions sent back to business logic
+- m - type of some kind of reactive monad
+- e - type of effects performed by the component.
+ 
+
+A bit similar to purescript-halogen, and most important - it works :-) Even with non-html ui.
 See http://eugenen.github.io/pureGoL/ for demo.
 
 
