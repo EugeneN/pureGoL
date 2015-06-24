@@ -48,7 +48,8 @@ foreign import fromUiEvent
   """function fromUiEvent(el) {return function(ev) {return Rx.Observable.fromEvent(el, ev) } }
   """ :: forall a e. e -> UIEvent -> Rx.Observable a
 
-setupUI :: forall e. State -> Rx.Observable Action -> String -> Eff (canvas :: Canvas, trace :: Trace | e) (Rx.Observable State)
+setupUI :: forall e. State -> Rx.Observable Action -> String
+                  -> Eff (canvas :: Canvas, trace :: Trace | e) (Rx.Observable State)
 setupUI state actionsStream canvasId = do
     Just canvas <- getCanvasElementById canvasId
 
@@ -64,7 +65,7 @@ setupUI state actionsStream canvasId = do
     pure vStream
 
     where
-    postUpstream (Tuple x y) = void $ pure $ onNext actionsStream (TogglePoint y x)
+    postUpstream (Tuple x y) = void <<< pure <<< onNext actionsStream $ (TogglePoint y x)
 
     currentGeneration   = getCurrentGeneration state
     width               = getWidth currentGeneration
@@ -80,7 +81,7 @@ setupUI state actionsStream canvasId = do
     coordsInField (Tuple x y) = x > fieldOffsetLeft
                              && x < fieldOffsetLeft + fieldWidth
                              && y > fieldOffsetTop
-                             && y < fieldOffsetTop + fieldHeight -- XXX FIXME
+                             && y < fieldOffsetTop + fieldHeight
 
     pxToCell (Tuple x y) = Tuple (mathFloor $ (x - fieldOffsetLeft) / cellSize)
                                  (mathFloor $ (y - fieldOffsetTop) / cellSize)

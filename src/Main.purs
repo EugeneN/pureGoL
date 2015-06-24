@@ -1,6 +1,7 @@
 module Main where
 
 import Control.Alt
+import Control.Apply
 import Control.Monad.Eff (Eff(..))
 import Data.Function
 import Data.Maybe
@@ -19,19 +20,31 @@ import Utils
 main = do
   uiParam <- getParameterByName "ui"
 
-  vStream <- case uiParam of
-                "react"   -> UIReact.setupUI   initialState actionsStream "root_layout"
-                "canvas"  -> UICanvas.setupUI  initialState actionsStream "canvas"
-                "console" -> UIConsole.setupUI initialState actionsStream ""
+  case uiParam of
+      "react"        -> setupReact
+      "canvas"       -> setupCanvas
+      "console"      -> setupConsole
+      "react_canvas" -> setupReact *> setupCanvas
 
-                _         -> UICanvas.setupUI  initialState actionsStream "canvas"
+      _              -> setupCanvas
 
-  scanStream `Rx.subscribe` (void <<< pure <<< onNext vStream)
-  keysStream `Rx.subscribe` keyCommand
+  keysStream `Rx.subscribe` keyCommand -- TODO move this to UIs, or/and dedicated input component
 
   pure $ onNext playPauseStream true
 
   where
+  setupReact = do
+    vStream <- UIReact.setupUI initialState actionsStream "root_layout"
+    scanStream `Rx.subscribe` (void <<< pure <<< onNext vStream)
+
+  setupCanvas = do
+    vStream <- UICanvas.setupUI initialState actionsStream "canvas"
+    scanStream `Rx.subscribe` (void <<< pure <<< onNext vStream)
+
+  setupConsole = do
+    vStream <- UIConsole.setupUI initialState actionsStream ""
+    scanStream `Rx.subscribe` (void <<< pure <<< onNext vStream)
+
   timerStream = (\_ -> Timer) <$> (getIntervalStream 1000)
 
   intervalStream = (\_ -> Tick) <$> (getIntervalStream initialSpeed)

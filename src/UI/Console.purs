@@ -21,10 +21,10 @@ setupUI :: forall e. State -> Rx.Observable Action -> String -> Eff (trace :: Tr
 setupUI state actionsStream _ = do
     let vStream = runFn0 newSubject
 
-    exportGlobal "point"    $ \x y -> void $ pure $ onNext actionsStream $ Point x y
-    exportGlobal "noPoint"  $ \x y -> void $ pure $ onNext actionsStream $ NoPoint x y
-    exportGlobal "play"     $ \_ _ -> void $ pure $ onNext actionsStream Play
-    exportGlobal "pause"    $ \_ _ -> void $ pure $ onNext actionsStream Pause
+    exportGlobal "point"    $ \x y -> void <<< pure <<< onNext actionsStream $ Point x y
+    exportGlobal "noPoint"  $ \x y -> void <<< pure <<< onNext actionsStream $ NoPoint x y
+    exportGlobal "play"     $ \_ _ -> void <<< pure <<< onNext actionsStream $ Play
+    exportGlobal "pause"    $ \_ _ -> void <<< pure <<< onNext actionsStream $ Pause
 
     vStream `Rx.subscribe` printCells
     pure vStream
