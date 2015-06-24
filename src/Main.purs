@@ -18,7 +18,9 @@ import Utils
 main = do
   --view <- renderMainView "root_layout" initialState actionsStream
   -- scanStream `Rx.subscribe` \s -> setProps view { actionsStream: actionsStream, state: s }
-  scanStream `Rx.subscribe` \s -> renderCanvas s actionsStream
+
+  vStream <- setupCanvasUI actionsStream "canvas"
+  scanStream `Rx.subscribe` \s -> void $ pure $ onNext vStream s
 
   keysStream `Rx.subscribe` keyCommand
 

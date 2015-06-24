@@ -27,6 +27,7 @@ instance showState :: Show State where
 
 data Action = Point Number Number
             | NoPoint Number Number
+            | TogglePoint Number Number
             | Tick
             | Pause
             | Play
@@ -38,17 +39,18 @@ data Action = Point Number Number
             | Timer
 
 instance showAction :: Show Action where
-    show (Point y x)   = "Point(" ++ show y ++ ", " ++ show x ++ ")"
-    show (NoPoint y x) = "NoPoint(" ++ show y ++ ", " ++ show x ++ ")"
-    show Tick          = "Tick"
-    show Play          = "Play"
-    show Pause         = "Pause"
-    show Toggle        = "Toggle"
-    show Save          = "Save"
-    show (NewCells cs) = "NewCells " ++ show cs
-    show (Rewind x)    = "Rewind " ++ show x
-    show (FForward x)  = "FForward " ++ show x
-    show Timer         = "Timer"
+    show (Point y x)        = "Point(" ++ show y ++ ", " ++ show x ++ ")"
+    show (NoPoint y x)      = "NoPoint(" ++ show y ++ ", " ++ show x ++ ")"
+    show (TogglePoint y x)  = "TogglePoint(" ++ show y ++ ", " ++ show x ++ ")"
+    show Tick               = "Tick"
+    show Play               = "Play"
+    show Pause              = "Pause"
+    show Toggle             = "Toggle"
+    show Save               = "Save"
+    show (NewCells cs)      = "NewCells " ++ show cs
+    show (Rewind x)         = "Rewind " ++ show x
+    show (FForward x)       = "FForward " ++ show x
+    show Timer              = "Timer"
 
 data Cell = Alive | Dead
 

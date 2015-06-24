@@ -65,6 +65,20 @@ foreign import fromEvent
   """function fromEvent(ev) { return Rx.Observable.fromEvent(document.body, ev) }
   """ :: forall eff z. String -> (Rx.Observable z)
 
-foreign import fromElementEvent
-  """function fromElementEvent(el) { return function(ev) { return Rx.Observable.fromEvent(el, ev) } }
-  """ :: forall eff z. HTMLElement -> String -> (Rx.Observable z)    
+
+
+foreign import mathRound
+    """function mathRound(f) {return Math.round(f) }
+    """ :: Number -> Number    
+
+foreign import mathFloor
+    """function mathFloor(f) {return Math.floor(f) }
+    """ :: Number -> Number  
+
+foreign import getElementOffsetLeft
+    """function getElementOffsetLeft(el){return document.getElementById(el).offsetLeft } 
+    """ :: forall a e. a -> Number
+
+foreign import getElementOffsetTop
+    """function getElementOffsetTop(el){return document.getElementById(el).offsetTop } 
+    """ :: forall a e. a -> Number

@@ -94,13 +94,19 @@ calculateNewGeneration state = saveNewGeneration state newGeneration
   where
   newGeneration = (getCurrentGeneration >>> genNewGeneration) state
 
-togglePoint :: Cell -> State -> Number -> Number -> State
-togglePoint newCell state y x = saveNewGeneration state newGeneration
+updatePoint :: Cell -> State -> Number -> Number -> State
+updatePoint newCell state y x = saveNewGeneration state newGeneration
     where currentGeneration = getCurrentGeneration state
           newGeneration = updateAt2 y x newCell currentGeneration
 
-addPoint    = togglePoint Alive
-removePoint = togglePoint Dead
+addPoint    = updatePoint Alive
+removePoint = updatePoint Dead
+
+togglePoint :: State -> Number -> Number -> State
+togglePoint state y x = case getByIndex2 (getCurrentGeneration state) x y of
+    Just Alive -> removePoint state y x
+    Just Dead  -> addPoint state y x
+    _          -> state
 
 toggleTicks :: RunStatus -> Rx.Observable Boolean -> State -> State
 toggleTicks rs playPauseStream (State s) = runPure (do
@@ -126,14 +132,15 @@ updateTimer state@(State s) = State (s { secondsElapsed = toFixed ((timeDelta s.
 updateStateFactory :: Rx.Observable Boolean ->  (Action -> State -> State)
 updateStateFactory playPauseStream = updateState
   where
-  updateState Tick          state = calculateNewGeneration state
-  updateState Play          state = play playPauseStream state
-  updateState Pause         state = pause playPauseStream state
-  updateState Toggle        state = toggle playPauseStream state
-  updateState Save          state = proxyLog state
-  updateState (Point y x)   state = addPoint state y x
-  updateState (NoPoint y x) state = removePoint state y x
-  updateState (NewCells cs) state = saveNewGeneration state cs
-  updateState (Rewind n)    state = (pause playPauseStream >>> rewind n) state
-  updateState (FForward n)  state = (pause playPauseStream >>> fforward n) state
-  updateState Timer         state = updateTimer state
+  updateState Tick              state = calculateNewGeneration state
+  updateState Play              state = play playPauseStream state
+  updateState Pause             state = pause playPauseStream state
+  updateState Toggle            state = toggle playPauseStream state
+  updateState Save              state = proxyLog state
+  updateState (Point y x)       state = addPoint state y x
+  updateState (NoPoint y x)     state = removePoint state y x
+  updateState (TogglePoint y x) state = togglePoint state y x
+  updateState (NewCells cs)     state = saveNewGeneration state cs
+  updateState (Rewind n)        state = (pause playPauseStream >>> rewind n) state
+  updateState (FForward n)      state = (pause playPauseStream >>> fforward n) state
+  updateState Timer             state = updateTimer state

@@ -11,8 +11,10 @@ import Data.Array
 import Graphics.Canvas
 
 import Control.Monad
-import Data.Traversable 
+import Control.Apply
+import Data.Traversable
 
+import Data.Function
 import Data.Maybe
 import Data.Tuple
 import Debug.Trace
@@ -26,12 +28,15 @@ import Data.DOM.Simple.Events
 
 type Color = String
 
-cellSize   = 10
-topOffset  = 90
-leftOffset = 0
+-- data UIEvent = Click | RClick
+type UIEvent = String
 
-white = "#ffffff"
-black = "#000000"
+cellSize    = 10
+topOffset   = 90
+leftOffset  = 0
+
+white       = "#ffffff"
+black       = "#000000"
 
 bgColor     = white
 borderColor = black
@@ -39,40 +44,78 @@ gridColor   = "#F8F8F8"
 cellColor   = black
 labelColor  = black
 
--- bindEventListeners canvas = do
---     let clicksStream = fromElementEvent canvas "click"
+foreign import fromUiEvent
+  """function fromUiEvent(el) {return function(ev) {return Rx.Observable.fromEvent(el, ev) } }
+  """ :: forall a e. e -> UIEvent -> Rx.Observable a
 
---     clicksStream `Rx.subscribe` \x -> 
+setupCanvasUI :: forall e. Rx.Observable Action -> String -> Eff (canvas :: Canvas, trace :: Trace | e) (Rx.Observable State)
+setupCanvasUI actionsStream canvasId = do
+    Just canvas <- getCanvasElementById canvasId
+
+    let rawClicksStream = fromUiEvent canvas "click"
+        pxStream = eventToCoords <$> rawClicksStream
+        fieldStream = coordsInField `Rx.filter` pxStream
+        cellsClicksStream = pxToCell <$> fieldStream
+        vStream = runFn0 newSubject
+
+    cellsClicksStream `Rx.subscribe` postUpstream
+    vStream `Rx.subscribe` (renderCanvas canvas)
+
+    cellsClicksStream `Rx.subscribe` \(Tuple x y) -> do
+        void $ trace $ "yoyo x=" ++ show x ++ "y=" ++ show y 
+    pxStream `Rx.subscribe` \(Tuple x y) -> do
+        void $ trace $ "pxpx x=" ++ show x ++ "y=" ++ show y 
 
 
-renderCanvas :: forall e. State -> Rx.Observable Action -> Eff (canvas :: Canvas | e) Unit
-renderCanvas state@(State s) actionsStream = do
-    Just canvas <- getCanvasElementById "canvas"
+    pure vStream
+
+    where
+    postUpstream (Tuple x y) = void $ pure $ onNext actionsStream (TogglePoint y x)
+
+    fieldOffsetTop = topOffset + (getElementOffsetTop "canvas")
+    fieldOffsetLeft = leftOffset + (getElementOffsetLeft "canvas")
+    fieldWidth = 1000  -- XXX FIXME
+    fieldHeight = 1000 -- XXX FIXME
+
+    eventToCoords e = Tuple e.pageX e.pageY
+
+    coordsInField (Tuple x y) = x > fieldOffsetLeft
+                             && x < fieldOffsetLeft + fieldWidth 
+                             && y > fieldOffsetTop
+                             && y < fieldOffsetTop + fieldHeight -- XXX FIXME
+
+    pxToCell (Tuple x y) = Tuple (mathFloor $ (x - fieldOffsetLeft) / cellSize)
+                                 (mathFloor $ (y - fieldOffsetTop) / cellSize)
+
+
+renderCanvas :: forall e. CanvasElement -> State -> Eff (canvas :: Canvas, trace :: Trace | e) Unit
+renderCanvas canvas state@(State s) = do
     ctx <- getContext2D canvas
 
-    let currentGeneration   = getCurrentGeneration state
-        totalGenerations    = getTotalGenerations state
-        width               = getWidth currentGeneration
-        height              = getHeight currentGeneration
-        widthPx             = width * cellSize
-        heightPx            = height * cellSize
-        minX                = leftOffset
-        minY                = topOffset
-        maxX                = widthPx + leftOffset
-        maxY                = heightPx + topOffset
-        
     drawBackground  ctx 0 0 maxX maxY
-    
     drawGrid        ctx width height minX minY maxX maxY
     drawBorders     ctx minX minY maxX maxY
     drawCells       ctx currentGeneration
-
     drawLabels      ctx state
 
     return unit
 
-drawBackground :: forall e. Context2D 
-                         -> Number -> Number -> Number -> Number 
+    where
+    width               = getWidth currentGeneration
+    height              = getHeight currentGeneration
+    widthPx             = width * cellSize
+    heightPx            = height * cellSize
+    minX                = leftOffset
+    minY                = topOffset
+    maxX                = widthPx + leftOffset
+    maxY                = heightPx + topOffset
+
+    currentGeneration   = getCurrentGeneration state
+    totalGenerations    = getTotalGenerations state
+
+
+drawBackground :: forall e. Context2D
+                         -> Number -> Number -> Number -> Number
                          -> Eff (canvas :: Canvas | e) Unit
 drawBackground ctx minX minY maxX maxY = do
     save ctx
@@ -102,12 +145,12 @@ drawLabels ctx state@(State s) = do
     restore ctx
     return unit
 
-    where 
+    where
     getCurrentGenerationLabel x = case x of
         Nothing -> "Latest"
         Just x -> show x
 
-drawBorders :: forall e. Context2D 
+drawBorders :: forall e. Context2D
                       -> Number -> Number -> Number -> Number
                       ->  Eff (canvas :: Canvas | e) Unit
 drawBorders ctx minX minY maxX maxY = do
@@ -128,8 +171,8 @@ drawBorders ctx minX minY maxX maxY = do
     restore ctx
     return unit
 
-drawGrid :: forall e. Context2D 
-                   -> Number -> Number -> Number -> Number ->  Number -> Number 
+drawGrid :: forall e. Context2D
+                   -> Number -> Number -> Number -> Number ->  Number -> Number
                    -> Eff (canvas :: Canvas | e) Unit
 drawGrid ctx x y minX minY maxX maxY = do
     save ctx
@@ -158,8 +201,8 @@ drawCells ctx cells = do
     for (zip cells (0 .. (length cells))) $ \(Tuple row y) ->
         for (zip row (0 .. (length row))) $ \(Tuple cell x) ->
             case cell of
-                Alive -> drawCell cellColor ctx x y 
-                Dead -> pure unit 
+                Alive -> drawCell cellColor ctx x y
+                Dead -> pure unit
 
     restore ctx
     return unit
