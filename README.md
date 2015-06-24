@@ -3,7 +3,8 @@
 This is a Game of Life written in Purescript using Rx and React/Canvas/Console UIs.
 
 Demo: http://eugenen.github.io/pureGoL/
-Console ui video: https://www.youtube.com/watch?v=8G-d8XcT6pM&feature=youtu.be
+
+Console UI video: https://www.youtube.com/watch?v=8G-d8XcT6pM&feature=youtu.be
 
 The main goal of this project is to define a clean and highly decoupled interface 
 between *stateful* business logic and *stateful* UI. Both business logic and UI 
