@@ -1,6 +1,18 @@
 # pureGoL
 
-This is a Game of Life written in Purescript using Rx and React.
+This is a Game of Life written in Purescript using Rx and React/Canvas UI.
+
+The main goal of this project is to define a clean and highly decoupled interface 
+between *stateful* business logic and *stateful* UI. Both business logic and UI 
+are state machines, black boxes, which communicate using only 2 data types and 2 streams:
+
+```
+data State = ...
+data Action = ...
+
+data BL2UIChannel = Rx.Observable State
+data UI2BLChannel = Rx.Observable Action
+```
 
 See http://eugenen.github.io/pureGoL/
 
@@ -55,18 +67,18 @@ This is the application's state machine. It maps `Action`s to new `State`s
 
 ``` purescript
 data KeyCode
-  = Insert
-  | Escape
-  | Enter
-  | Delete
-  | F1
-  | F2
-  | F3
-  | F4
-  | F5
-  | Space
-  | LeftArrow
-  | RightArrow
+  = Insert 
+  | Escape 
+  | Enter 
+  | Delete 
+  | F1 
+  | F2 
+  | F3 
+  | F4 
+  | F5 
+  | Space 
+  | LeftArrow 
+  | RightArrow 
   | UnknownKey Number
 ```
 
@@ -132,15 +144,16 @@ instance showState :: Show State
 data Action
   = Point Number Number
   | NoPoint Number Number
-  | Tick
-  | Pause
-  | Play
-  | Toggle
-  | Save
+  | TogglePoint Number Number
+  | Tick 
+  | Pause 
+  | Play 
+  | Toggle 
+  | Save 
   | NewCells Generation
   | Rewind Number
   | FForward Number
-  | Timer
+  | Timer 
 ```
 
 
@@ -155,8 +168,8 @@ instance showAction :: Show Action
 
 ``` purescript
 data Cell
-  = Alive
-  | Dead
+  = Alive 
+  | Dead 
 ```
 
 
@@ -178,8 +191,8 @@ instance showCell :: Show Cell
 
 ``` purescript
 data RunStatus
-  = Running
-  | Paused
+  = Running 
+  | Paused 
 ```
 
 
@@ -198,7 +211,100 @@ instance eqRunStatus :: Eq RunStatus
 
 
 
-## Module UI
+## Module UI.Canvas
+
+#### `Color`
+
+``` purescript
+type Color = String
+```
+
+
+#### `UIEvent`
+
+``` purescript
+type UIEvent = String
+```
+
+#### `fromUiEvent`
+
+``` purescript
+fromUiEvent :: forall a e. e -> UIEvent -> Rx.Observable a
+```
+
+
+#### `setupUI`
+
+``` purescript
+setupUI :: forall e. State -> Rx.Observable Action -> String -> Eff (trace :: Trace, canvas :: Canvas | e) (Rx.Observable State)
+```
+
+
+#### `renderCanvas`
+
+``` purescript
+renderCanvas :: forall e. CanvasElement -> State -> Eff (trace :: Trace, canvas :: Canvas | e) Unit
+```
+
+
+#### `drawBackground`
+
+``` purescript
+drawBackground :: forall e. Context2D -> Number -> Number -> Number -> Number -> Eff (canvas :: Canvas | e) Unit
+```
+
+
+#### `drawLabels`
+
+``` purescript
+drawLabels :: forall e. Context2D -> State -> Eff (canvas :: Canvas | e) Unit
+```
+
+
+#### `drawBorders`
+
+``` purescript
+drawBorders :: forall e. Context2D -> Number -> Number -> Number -> Number -> Eff (canvas :: Canvas | e) Unit
+```
+
+
+#### `drawGrid`
+
+``` purescript
+drawGrid :: forall e. Context2D -> Number -> Number -> Number -> Number -> Number -> Number -> Eff (canvas :: Canvas | e) Unit
+```
+
+
+#### `drawCells`
+
+``` purescript
+drawCells :: forall e. Context2D -> Generation -> Eff (canvas :: Canvas | e) Unit
+```
+
+
+#### `drawCell`
+
+``` purescript
+drawCell :: forall e. Color -> Context2D -> Number -> Number -> Eff (canvas :: Canvas | e) Unit
+```
+
+
+#### `getWidth`
+
+``` purescript
+getWidth :: Generation -> Number
+```
+
+
+#### `getHeight`
+
+``` purescript
+getHeight :: Generation -> Number
+```
+
+
+
+## Module UI.React
 
 #### `mainView`
 
@@ -211,6 +317,13 @@ mainView :: ComponentClass { state :: State, actionsStream :: Rx.Observable Acti
 
 ``` purescript
 renderMainView :: forall eff. String -> State -> Rx.Observable Action -> Eff (react :: React, dom :: DOM | eff) Component
+```
+
+
+#### `setupUI`
+
+``` purescript
+setupUI :: forall e. State -> Rx.Observable Action -> String -> Eff (trace :: Trace, react :: React, dom :: DOM | e) (Rx.Observable State)
 ```
 
 
@@ -298,6 +411,41 @@ setProps :: forall a eff. Component -> a -> Eff (react :: React, dom :: DOM | ef
 
 ``` purescript
 fromEvent :: forall eff z. String -> Rx.Observable z
+```
+
+
+#### `mathRound`
+
+``` purescript
+mathRound :: Number -> Number
+```
+
+
+#### `mathFloor`
+
+``` purescript
+mathFloor :: Number -> Number
+```
+
+
+#### `getElementOffsetLeft`
+
+``` purescript
+getElementOffsetLeft :: forall a e. a -> Number
+```
+
+
+#### `getElementOffsetTop`
+
+``` purescript
+getElementOffsetTop :: forall a e. a -> Number
+```
+
+
+#### `getParameterByName`
+
+``` purescript
+getParameterByName :: forall e. String -> Eff e String
 ```
 
 

@@ -19,7 +19,7 @@ main = do
   uiParam <- getParameterByName "ui"
 
   vStream <- case uiParam of
-                "react"  -> UIReact.setupUI initialState actionsStream "root_layout"
+                "react"  -> UIReact.setupUI  initialState actionsStream "root_layout"
                 _        -> UICanvas.setupUI initialState actionsStream "canvas"
 
   scanStream `Rx.subscribe` \s -> void $ pure $ onNext vStream s
