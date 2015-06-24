@@ -3,8 +3,9 @@
 :m src/KeyCodes.purs
 :m src/Main.purs
 :m src/Types.purs
-:m src/UI.purs
-:m src/UICanvas.purs
+:m src/UI/Canvas.purs
+:m src/UI/Console.purs
+:m src/UI/React.purs
 :m src/Utils.purs
 :m test/Main.purs
 :m bower_components/purescript-aff/src/Control/Monad/Aff.purs
@@ -15,6 +16,7 @@
 :m bower_components/purescript-arrays/src/Data/Array.purs
 :m bower_components/purescript-arrays/src/Data/Array/ST.purs
 :m bower_components/purescript-arrays/src/Data/Array/Unsafe.purs
+:m bower_components/purescript-canvas/src/Graphics/Canvas.purs
 :m bower_components/purescript-control/src/Control/Alt.purs
 :m bower_components/purescript-control/src/Control/Alternative.purs
 :m bower_components/purescript-control/src/Control/Apply.purs

@@ -12,6 +12,7 @@ import KeyCodes
 import Types
 import qualified UI.React as UIReact
 import qualified UI.Canvas as UICanvas
+import qualified UI.Console as UIConsole
 import Utils
 
 
@@ -19,8 +20,11 @@ main = do
   uiParam <- getParameterByName "ui"
 
   vStream <- case uiParam of
-                "react"  -> UIReact.setupUI  initialState actionsStream "root_layout"
-                _        -> UICanvas.setupUI initialState actionsStream "canvas"
+                "react"   -> UIReact.setupUI   initialState actionsStream "root_layout"
+                "canvas"  -> UICanvas.setupUI  initialState actionsStream "canvas"
+                "console" -> UIConsole.setupUI initialState actionsStream ""
+
+                _         -> UICanvas.setupUI  initialState actionsStream "canvas"
 
   scanStream `Rx.subscribe` \s -> void $ pure $ onNext vStream s
 
