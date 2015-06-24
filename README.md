@@ -1,6 +1,6 @@
 # pureGoL
 
-This is a Game of Life written in Purescript using Rx and React/Canvas UI.
+This is a Game of Life written in Purescript using Rx and React/Canvas/Console UIs.
 
 The main goal of this project is to define a clean and highly decoupled interface 
 between *stateful* business logic and *stateful* UI. Both business logic and UI 
@@ -33,7 +33,7 @@ where
 - e - type of effects performed by the component.
  
 
-A bit similar to purescript-halogen, and most important - it works :-) Even with non-html ui.
+A bit similar to purescript-halogen, and most important - it works :-) Even with non-html UIs.
 See http://eugenen.github.io/pureGoL/ for demo.
 
 
