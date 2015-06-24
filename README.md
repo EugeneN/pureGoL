@@ -6,7 +6,7 @@ The main goal of this project is to define a clean and highly decoupled interfac
 between *stateful* business logic and *stateful* UI. Both business logic and UI 
 are state machines, black boxes, which communicate using only 2 data types and 2 streams:
 
-```
+```purescript
 data State = ...
 data Action = ...
 
@@ -16,7 +16,7 @@ data UI2BLChannel = Rx.Observable Action
 
 Obviously it should be possible to abstract over Rx.Observable like this:
 
-```
+```purescript
 data BL2UIChannel = forall a. Reactive' a => a State
 data UI2BLChannel = forall a. Reactive' a => a Action
 ```
