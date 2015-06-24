@@ -103,7 +103,7 @@ addPoint    = updatePoint Alive
 removePoint = updatePoint Dead
 
 togglePoint :: State -> Number -> Number -> State
-togglePoint state y x = case getByIndex2 (getCurrentGeneration state) x y of
+togglePoint state y x = case getByIndex2 (getCurrentGeneration state) y x of
     Just Alive -> removePoint state y x
     Just Dead  -> addPoint state y x
     _          -> state

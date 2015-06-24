@@ -61,12 +61,6 @@ setupCanvasUI actionsStream canvasId = do
     cellsClicksStream `Rx.subscribe` postUpstream
     vStream `Rx.subscribe` (renderCanvas canvas)
 
-    cellsClicksStream `Rx.subscribe` \(Tuple x y) -> do
-        void $ trace $ "yoyo x=" ++ show x ++ "y=" ++ show y 
-    pxStream `Rx.subscribe` \(Tuple x y) -> do
-        void $ trace $ "pxpx x=" ++ show x ++ "y=" ++ show y 
-
-
     pure vStream
 
     where
