@@ -51,8 +51,8 @@ foreign import fromUiEvent
 setupUI :: forall e. State -> Rx.Observable Action -> String
                   -> Eff (canvas :: Canvas, dom :: DOM, trace :: Trace | e) (Rx.Observable State)
 setupUI state actionsStream canvasId = do
-    Just canvas <- getCanvasElementById canvasId
     displayBlock canvasId
+    Just canvas <- getCanvasElementById canvasId
 
     let rawClicksStream = fromUiEvent canvas "click"
         pxStream = eventToCoords <$> rawClicksStream

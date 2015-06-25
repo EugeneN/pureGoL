@@ -19,6 +19,17 @@ import React.Types (Component(), ComponentClass(), Event(), React())
 import qualified Rx.Observable as Rx
 
 
+setupUI :: forall e. State -> Rx.Observable Action -> String
+                  -> Eff (dom :: DOM, react :: React, trace :: Trace | e) (Rx.Observable State)
+setupUI initialState actionsStream targetId = do
+    displayBlock targetId
+    view <- renderMainView targetId initialState actionsStream
+
+    let vStream = runFn0 newSubject
+    vStream `Rx.subscribe` (\s -> setProps view { actionsStream: actionsStream, state: s })
+
+    pure vStream
+
 mainView :: ComponentClass { actionsStream :: Rx.Observable Action, state :: State } {}
 mainView = createClass spec { displayName = "MainView", render = renderFun } where
     renderFun this = render this.props.actionsStream this.props.state
@@ -80,13 +91,3 @@ renderMainView :: forall eff. String
 renderMainView targetId state actionsStream =
     renderComponentById (mainView { actionsStream: actionsStream, state: state } []) targetId
 
-setupUI :: forall e. State -> Rx.Observable Action -> String
-                  -> Eff (dom :: DOM, react :: React, trace :: Trace | e) (Rx.Observable State)
-setupUI initialState actionsStream targetId = do
-    displayBlock targetId
-    view <- renderMainView targetId initialState actionsStream
-
-    let vStream = runFn0 newSubject
-    vStream `Rx.subscribe` (\s -> setProps view { actionsStream: actionsStream, state: s })
-
-    pure vStream
