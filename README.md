@@ -40,6 +40,15 @@ where
 A bit similar to purescript-halogen, and most important - it works :-) Even with non-html UIs.
 See http://eugenen.github.io/pureGoL/ for demo.
 
+# Run instructions
+
+- `git clone https://github.com/EugeneN/pureGoL.git`
+- `cd pureGoL/`
+- `pulp dep install`
+- *optional if `browserify` can't find `npm` module for `rx`: `npm install rx`
+- `pulp browserify > public/GoL.js`
+- `open public/index.html`
+
 # Module Documentation
 
 ## Module Core
