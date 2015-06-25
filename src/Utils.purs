@@ -91,3 +91,7 @@ foreign import getParameterByName
          }
        }
     """ :: forall e. String -> Eff e String
+
+foreign import displayBlock
+    """function displayBlock(elid) {return function() {document.getElementById(elid).style.display = "block"} }
+    """ :: forall e. String -> Eff (dom :: DOM | e) Unit

@@ -40,7 +40,6 @@ where
 A bit similar to purescript-halogen, and most important - it works :-) Even with non-html UIs.
 See http://eugenen.github.io/pureGoL/ for demo.
 
-
 # Module Documentation
 
 ## Module Core
@@ -260,7 +259,7 @@ fromUiEvent :: forall a e. e -> UIEvent -> Rx.Observable a
 #### `setupUI`
 
 ``` purescript
-setupUI :: forall e. State -> Rx.Observable Action -> String -> Eff (trace :: Trace, canvas :: Canvas | e) (Rx.Observable State)
+setupUI :: forall e. State -> Rx.Observable Action -> String -> Eff (trace :: Trace, dom :: DOM, canvas :: Canvas | e) (Rx.Observable State)
 ```
 
 
@@ -324,6 +323,23 @@ getWidth :: Generation -> Number
 
 ``` purescript
 getHeight :: Generation -> Number
+```
+
+
+
+## Module UI.Console
+
+#### `exportGlobal`
+
+``` purescript
+exportGlobal :: forall e a. String -> (Number -> Number -> Eff e Unit) -> Eff e Unit
+```
+
+
+#### `setupUI`
+
+``` purescript
+setupUI :: forall e. State -> Rx.Observable Action -> String -> Eff (trace :: Trace | e) (Rx.Observable State)
 ```
 
 
@@ -470,6 +486,13 @@ getElementOffsetTop :: forall a e. a -> Number
 
 ``` purescript
 getParameterByName :: forall e. String -> Eff e String
+```
+
+
+#### `displayBlock`
+
+``` purescript
+displayBlock :: forall e. String -> Eff (dom :: DOM | e) Unit
 ```
 
 

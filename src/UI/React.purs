@@ -83,6 +83,7 @@ renderMainView targetId state actionsStream =
 setupUI :: forall e. State -> Rx.Observable Action -> String
                   -> Eff (dom :: DOM, react :: React, trace :: Trace | e) (Rx.Observable State)
 setupUI initialState actionsStream targetId = do
+    displayBlock targetId
     view <- renderMainView targetId initialState actionsStream
 
     let vStream = runFn0 newSubject
