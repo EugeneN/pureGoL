@@ -15,7 +15,8 @@
     "purescript-react": "joneshf/purescript-react#simplify",
     "purescript-canvas": "*",
     "purescript-datetime": "*",
-    "purescript-math": "*"
+    "purescript-math": "*",
+    "purescript-random": "*"
   },
   "ignore": [
     "**/.*",

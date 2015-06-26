@@ -13,6 +13,8 @@ module Core
   ) where
 
 import Control.Apply
+import Control.Monad.Eff.Random
+import Data.Traversable
 import Data.Array
 import Data.Function
 import Data.Maybe
@@ -137,10 +139,18 @@ updateTimer state@(State s) = do
                   , genCounter = 0
                   , genRatio = s.genCounter })
 
+genRandomGeneration state = do
+    let g = getCurrentGeneration state
+    newGen <- for g $ \row ->
+                for row $ \x -> do
+                    x <- random
+                    pure $ if x > 0.5 then Alive else Dead
+    pure $ saveNewGeneration state newGen
+
 -- | This is the application's state machine. It maps `Action`s to new `State`s
 processStateFactory :: Rx.Observable Boolean
                   ->  (forall e. Action -> State
-                              -> Eff (now :: Now, trace :: Trace | e) State)
+                              -> Eff (now :: Now, trace :: Trace, random :: Random | e) State)
 processStateFactory playPauseStream = processState
   where
   processState Tick              state = pure $ calculateNewGeneration state
@@ -155,3 +165,4 @@ processStateFactory playPauseStream = processState
   processState (Rewind n)        state = pure $ (pause playPauseStream >>> rewind n) state
   processState (FForward n)      state = pure $ (pause playPauseStream >>> fforward n) state
   processState Timer             state = updateTimer state
+  processState RandomGen         state = genRandomGeneration state

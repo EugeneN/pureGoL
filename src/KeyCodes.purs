@@ -12,6 +12,8 @@ data KeyCode = Insert
              | Space
              | LeftArrow
              | RightArrow
+             | Rsmall
+             | Rbig
              | UnknownKey Number
 
 keyEventToKeyCode :: forall a. a -> KeyCode
@@ -27,6 +29,8 @@ keyEventToKeyCode x | which x == 13  = Enter
                     | which x == 32  = Space
                     | which x == 37  = LeftArrow
                     | which x == 39  = RightArrow
+                    | which x == 114 = Rsmall
+                    | which x == 82  = Rbig
 
 keyEventToKeyCode x                  = UnknownKey $ which x
 
@@ -43,6 +47,8 @@ instance eqKeyCode :: Eq KeyCode where
     (==) Space  Space  = true
     (==) LeftArrow   LeftArrow   = true
     (==) RightArrow  RightArrow  = true
+    (==) Rbig        Rbig        = true
+    (==) Rsmall      Rsmall      = true
     (==) _      _      = false
     (/=) a      b      = not $ (==) a b
 

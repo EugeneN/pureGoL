@@ -36,6 +36,7 @@ data Action = Point Number Number
             | Rewind Number
             | FForward Number
             | Timer
+            | RandomGen
 
 instance showAction :: Show Action where
     show (Point y x)        = "Point(" ++ show y ++ ", " ++ show x ++ ")"
@@ -50,6 +51,7 @@ instance showAction :: Show Action where
     show (Rewind x)         = "Rewind " ++ show x
     show (FForward x)       = "FForward " ++ show x
     show Timer              = "Timer"
+    show RandomGen          = "RandomGen"
 
 data Cell = Alive | Dead
 

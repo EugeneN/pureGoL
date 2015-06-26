@@ -62,6 +62,8 @@ main = do
   keyToAction Space      = Just Toggle
   keyToAction LeftArrow  = Just $ Rewind 1
   keyToAction RightArrow = Just $ FForward 1
+  keyToAction Rsmall     = Just $ RandomGen
+  keyToAction Rbig       = Just $ RandomGen
   keyToAction _          = Nothing
 
   keyCommand :: forall eff. KeyCode -> Eff eff Unit

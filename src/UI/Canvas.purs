@@ -146,7 +146,7 @@ drawLabels ctx state@(State s) = do
     fillText ctx ("Total generations: " ++ show (getTotalGenerations state)) 350 60
 
     setFont "12px Source Code Pro" ctx
-    fillText ctx ("Space - toggle play/pause, ⟵⟶ - navigate generations.") 5 80
+    fillText ctx ("Space - toggle play/pause, ⟵⟶ - navigate generations, r - random generation.") 5 80
 
     restore ctx
     return unit
