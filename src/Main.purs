@@ -26,14 +26,15 @@ main = do
       "react"        -> setupReact initialState stateStream
       "canvas"       -> setupCanvas initialState stateStream
       "console"      -> setupConsole initialState stateStream
-      "react_canvas" -> (setupReact initialState stateStream) *> (setupCanvas initialState stateStream)
+      "react_canvas" -> (setupReact initialState stateStream)
+                        *> (setupCanvas initialState stateStream)
 
       _              -> setupCanvas initialState stateStream
 
   rawKeysStream <- fromEvent "keyup"
   (keyEventToKeyCode <$> rawKeysStream) `Rx.subscribe` keyCommand -- TODO move this to UIs, or/and dedicated input component
 
-  pure $ onNext ticksPlayPauseStream true
+  onNext ticksPlayPauseStream true
 
   where
   setupReact   = setupUI UIReact.setupUI "root_layout"
@@ -42,7 +43,7 @@ main = do
 
   setupUI ui placeholderId initialState stateStream = void $ do
     viewInputStream <- ui initialState actionsStream placeholderId
-    stateStream `Rx.subscribe` (void <<< pure <<< onNext viewInputStream)
+    stateStream `Rx.subscribe` (onNext viewInputStream)
 
   timerStream = (\_ -> Timer) <$> (getIntervalStream 1000)
 
@@ -62,6 +63,5 @@ main = do
 
   keyCommand :: forall eff. KeyCode -> Eff eff Unit
   keyCommand key = case keyToAction key of
-      Just action -> void <<< pure <<< onNext actionsStream $ action
+      Just action -> onNext actionsStream $ action
       Nothing     -> pure unit
-

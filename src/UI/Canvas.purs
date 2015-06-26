@@ -73,7 +73,7 @@ setupUI state outputActionsStream canvasId = do
     pure inputStateStream
 
     where
-    postUpstream (Tuple x y) = void <<< pure <<< onNext outputActionsStream $ (TogglePoint y x)
+    postUpstream (Tuple x y) = onNext outputActionsStream $ (TogglePoint y x)
 
     currentGeneration   = getCurrentGeneration state
     width               = getWidth currentGeneration
@@ -231,4 +231,3 @@ getWidth (y:ys) = length y
 
 getHeight :: Generation -> Number
 getHeight xs = length xs
-

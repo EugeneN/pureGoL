@@ -117,9 +117,9 @@ togglePoint state y x = case getByIndex2 (getCurrentGeneration state) y x of
 
 toggleTicks :: RunStatus -> Rx.Observable Boolean -> State -> State
 toggleTicks rs playPauseStream (State s) = runPure (do
-    pure $ onNext playPauseStream $ case rs of
-                                        Running -> true
-                                        Paused  -> false
+    onNext playPauseStream $ case rs of
+                                Running -> true
+                                Paused  -> false
     pure $ State (s {runningState = rs}))
 
 play  = toggleTicks Running
