@@ -31,7 +31,7 @@ foreign import timeDelta
     """ :: Date -> Date -> Number
 
 foreign import toFixed
-    """function toFixed(x) { return function(n) { return x.toFixed(n) } }
+    """function toFixed(x) { return function(n) { return +x.toFixed(n) } }
     """ :: Number -> Number -> Number
 
 foreign import newSubject
@@ -42,6 +42,7 @@ foreign import getIntervalStream
     """ function getIntervalStream(interval) { return Rx.Observable.interval(interval) }
     """ :: forall a. Number -> Rx.Observable a
 
+-- FIXME this should produce an effect
 foreign import onNext
     """ function onNext(obs){ return function (val) { return obs.onNext(val); } }
     """ :: forall a. Rx.Observable a -> a -> Rx.Observable a
@@ -55,16 +56,8 @@ foreign import setProps
     """ :: forall a eff. Component -> a -> Eff (dom :: DOM, react :: React | eff) Unit
 
 foreign import fromEvent
-  """function fromEvent(ev) { return Rx.Observable.fromEvent(document.body, ev) }
-  """ :: forall eff z. String -> (Rx.Observable z)
-
-foreign import mathRound
-    """function mathRound(f) {return Math.round(f) }
-    """ :: Number -> Number
-
-foreign import mathFloor
-    """function mathFloor(f) {return Math.floor(f) }
-    """ :: Number -> Number
+  """function fromEvent(ev) { return function() {return Rx.Observable.fromEvent(document.body, ev)} }
+  """ :: forall eff z. String -> Eff (dom :: DOM | eff) (Rx.Observable z)
 
 foreign import getElementOffsetLeft
     """function getElementOffsetLeft(el){ return function() { return document.getElementById(el).offsetLeft } }

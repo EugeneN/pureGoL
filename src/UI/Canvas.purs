@@ -26,6 +26,8 @@ import Data.DOM.Simple.Types (HTMLElement(..))
 import Data.DOM.Simple.Window
 import Data.DOM.Simple.Events
 
+import Math
+
 type Color = String
 
 -- data UIEvent = Click | RClick
@@ -88,8 +90,8 @@ setupUI state outputActionsStream canvasId = do
          && y < fieldOffsetTop + fieldHeight
 
     pxToCell fieldOffsetLeft fieldOffsetTop (Tuple x y) =
-        Tuple (mathFloor $ (x - fieldOffsetLeft) / cellSize)
-              (mathFloor $ (y - fieldOffsetTop) / cellSize)
+        Tuple (floor $ (x - fieldOffsetLeft) / cellSize)
+              (floor $ (y - fieldOffsetTop) / cellSize)
 
 
 renderCanvas :: forall e. CanvasElement -> State -> Eff (canvas :: Canvas, trace :: Trace | e) Unit

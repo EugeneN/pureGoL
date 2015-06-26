@@ -6,41 +6,21 @@ Demo: http://eugenen.github.io/pureGoL/
 
 Console UI video: https://www.youtube.com/watch?v=8G-d8XcT6pM&feature=youtu.be
 
-The main goal of this project is to define a clean and highly decoupled interface 
-between *stateful* business logic and *stateful* UI. Both business logic and UI 
+The main goal of this project is to define a clean and highly decoupled interface
+between *stateful* business logic and *stateful* UI. Both business logic and UI
 are state machines, black boxes, which communicate using only 2 data types and 2 streams:
 
 ```purescript
 data State = ...
 data Action = ...
 
-data BL2UIChannel = Rx.Observable State
-data UI2BLChannel = Rx.Observable Action
+type BL2UIChannel = Rx.Observable State
+type UI2BLChannel = Rx.Observable Action
 ```
 
-Obviously it should be possible to abstract over Rx.Observable like this:
-
-```purescript
-data BL2UIChannel = forall a. Reactive' a => a State
-data UI2BLChannel = forall a. Reactive' a => a Action
-```
-
-where `Reactive'` means any, well, reactive mechanism. Even more abstracted signature looks like this:
-
-```purescript
-data UIComponent m input output = forall e. Reactive' m => input -> m output -> Eff e (m input)
-```
-where 
-- input - type of input state
-- output - type of actions sent back to business logic
-- m - type of some kind of reactive monad
-- e - type of effects performed by the component.
- 
-
-A bit similar to purescript-halogen, and most important - it works :-) Even with non-html UIs.
 See http://eugenen.github.io/pureGoL/ for demo.
 
-# Run instructions
+# Run
 
 - `git clone https://github.com/EugeneN/pureGoL.git`
 - `cd pureGoL/`
@@ -52,6 +32,13 @@ See http://eugenen.github.io/pureGoL/ for demo.
 # Module Documentation
 
 ## Module Core
+
+#### `getInitialState`
+
+``` purescript
+getInitialState :: forall e. Eff (now :: Now | e) State
+```
+
 
 #### `getTotalGenerations`
 
@@ -84,7 +71,7 @@ calculateNewGeneration :: State -> State
 #### `updateStateFactory`
 
 ``` purescript
-updateStateFactory :: Rx.Observable Boolean -> Action -> State -> State
+updateStateFactory :: Rx.Observable Boolean -> (forall e. Action -> State -> Eff (trace :: Trace, now :: Now | e) State)
 ```
 
 This is the application's state machine. It maps `Action`s to new `State`s
@@ -149,19 +136,13 @@ type Generation = [[Cell]]
 ```
 
 
-#### `Datetime`
-
-``` purescript
-data Datetime :: *
-```
-
-
 #### `State`
 
 ``` purescript
 data State
-  = State { genRatio :: Number, genCounter :: Number, secondsElapsed :: Number, startTime :: Datetime, current :: Maybe Number, runningState :: RunStatus, cells :: [Generation] }
+  = State { genRatio :: Number, genCounter :: Number, secondsElapsed :: Number, startTime :: Date, current :: Maybe Number, runningState :: RunStatus, cells :: [Generation] }
 ```
+
 
 #### `showState`
 
@@ -355,6 +336,13 @@ setupUI :: forall e. State -> Rx.Observable Action -> String -> Eff (trace :: Tr
 
 ## Module UI.React
 
+#### `setupUI`
+
+``` purescript
+setupUI :: forall e. State -> Rx.Observable Action -> String -> Eff (trace :: Trace, react :: React, dom :: DOM | e) (Rx.Observable State)
+```
+
+
 #### `mainView`
 
 ``` purescript
@@ -369,22 +357,8 @@ renderMainView :: forall eff. String -> State -> Rx.Observable Action -> Eff (re
 ```
 
 
-#### `setupUI`
-
-``` purescript
-setupUI :: forall e. State -> Rx.Observable Action -> String -> Eff (trace :: Trace, react :: React, dom :: DOM | e) (Rx.Observable State)
-```
-
-
 
 ## Module Utils
-
-#### `proxyLog`
-
-``` purescript
-proxyLog :: forall a. a -> a
-```
-
 
 #### `updateAt2`
 
@@ -400,17 +374,10 @@ getByIndex2 :: forall a. [[a]] -> Number -> Number -> Maybe a
 ```
 
 
-#### `now`
-
-``` purescript
-now :: forall a. Fn0 Datetime
-```
-
-
 #### `timeDelta`
 
 ``` purescript
-timeDelta :: Datetime -> Datetime -> Number
+timeDelta :: Date -> Date -> Number
 ```
 
 
@@ -441,7 +408,6 @@ getIntervalStream :: forall a. Number -> Rx.Observable a
 onNext :: forall a. Rx.Observable a -> a -> Rx.Observable a
 ```
 
-
 #### `pausable`
 
 ``` purescript
@@ -459,35 +425,21 @@ setProps :: forall a eff. Component -> a -> Eff (react :: React, dom :: DOM | ef
 #### `fromEvent`
 
 ``` purescript
-fromEvent :: forall eff z. String -> Rx.Observable z
-```
-
-
-#### `mathRound`
-
-``` purescript
-mathRound :: Number -> Number
-```
-
-
-#### `mathFloor`
-
-``` purescript
-mathFloor :: Number -> Number
+fromEvent :: forall eff z. String -> Eff (dom :: DOM | eff) (Rx.Observable z)
 ```
 
 
 #### `getElementOffsetLeft`
 
 ``` purescript
-getElementOffsetLeft :: forall a e. a -> Number
+getElementOffsetLeft :: forall e. String -> Eff (dom :: DOM | e) Number
 ```
 
 
 #### `getElementOffsetTop`
 
 ``` purescript
-getElementOffsetTop :: forall a e. a -> Number
+getElementOffsetTop :: forall e. String -> Eff (dom :: DOM | e) Number
 ```
 
 
@@ -502,6 +454,13 @@ getParameterByName :: forall e. String -> Eff e String
 
 ``` purescript
 displayBlock :: forall e. String -> Eff (dom :: DOM | e) Unit
+```
+
+
+#### `scan`
+
+``` purescript
+scan :: forall a b e. (a -> b -> Eff e b) -> b -> Rx.Observable a -> Eff e (Rx.Observable b)
 ```
 
 

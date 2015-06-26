@@ -14,7 +14,8 @@
     "react": "~0.11.0",
     "purescript-react": "joneshf/purescript-react#simplify",
     "purescript-canvas": "*",
-    "purescript-datetime": "*"
+    "purescript-datetime": "*",
+    "purescript-math": "*"
   },
   "ignore": [
     "**/.*",

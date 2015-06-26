@@ -30,7 +30,8 @@ main = do
 
       _              -> setupCanvas initialState stateStream
 
-  keysStream `Rx.subscribe` keyCommand -- TODO move this to UIs, or/and dedicated input component
+  rawKeysStream <- fromEvent "keyup"
+  (keyEventToKeyCode <$> rawKeysStream) `Rx.subscribe` keyCommand -- TODO move this to UIs, or/and dedicated input component
 
   pure $ onNext ticksPlayPauseStream true
 
@@ -56,10 +57,6 @@ main = do
   ticksPlayPauseStream = runFn0 newSubject
 
   jointActionsStream = pausableTicksStream <|> actionsStream <|> timerStream
-
-
-  rawKeysStream = fromEvent "keyup"
-  keysStream = keyEventToKeyCode <$> rawKeysStream
 
   keyToAction :: KeyCode -> Maybe Action
   keyToAction Space      = Just Toggle
