@@ -213,8 +213,10 @@ drawCells ctx cells = do
     restore ctx
     return unit
 
-drawCell :: forall e. Color -> Context2D -> Number -> Number -> Eff (canvas :: Canvas | e) Unit
-drawCell color ctx x y = do
+drawCell = drawCircle
+
+drawSquare :: forall e. Color -> Context2D -> Number -> Number -> Eff (canvas :: Canvas | e) Unit
+drawSquare color ctx x y = do
     save ctx
 
     setFillStyle color ctx
@@ -222,6 +224,21 @@ drawCell color ctx x y = do
                             , y: ((y * cellSize) + 1 + topOffset)
                             , w: (cellSize - 1)
                             , h: (cellSize - 1) }
+
+    restore ctx
+    return unit
+
+drawCircle :: forall e. Color -> Context2D -> Number -> Number -> Eff (canvas :: Canvas | e) Unit
+drawCircle color ctx x y = do
+    save ctx
+
+    setFillStyle color ctx
+
+    fillPath ctx $ arc ctx { x : ((x * cellSize) + (round $ cellSize / 2) + leftOffset)
+                           , y : ((y * cellSize) + (round $ cellSize / 2) + topOffset)
+                           , r : (cellSize / 4 + 1)
+                           , start : 0
+                           , end : 360 }
 
     restore ctx
     return unit
