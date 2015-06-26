@@ -139,7 +139,8 @@ updateTimer state@(State s) = do
                   })
 
 -- | This is the application's state machine. It maps `Action`s to new `State`s
-updateStateFactory :: Rx.Observable Boolean ->  (forall e. Action -> State -> Eff (now :: Now, trace :: Trace | e) State)
+updateStateFactory :: Rx.Observable Boolean 
+                  ->  (forall e. Action -> State -> Eff (now :: Now, trace :: Trace | e) State)
 updateStateFactory playPauseStream = updateState
   where
   updateState Tick              state = pure $ calculateNewGeneration state
