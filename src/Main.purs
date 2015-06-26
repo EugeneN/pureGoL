@@ -36,12 +36,12 @@ main = do
   pure $ onNext ticksPlayPauseStream true
 
   where
-  setupReact   = setupUI UIReact.setupUI
-  setupCanvas  = setupUI UICanvas.setupUI
-  setupConsole = setupUI UIConsole.setupUI
+  setupReact   = setupUI UIReact.setupUI "root_layout"
+  setupCanvas  = setupUI UICanvas.setupUI "canvas"
+  setupConsole = setupUI UIConsole.setupUI ""
 
-  setupUI ui initialState stateStream = void $ do
-    viewInputStream <- ui initialState actionsStream ""
+  setupUI ui placeholderId initialState stateStream = void $ do
+    viewInputStream <- ui initialState actionsStream placeholderId
     stateStream `Rx.subscribe` (void <<< pure <<< onNext viewInputStream)
 
   timerStream = (\_ -> Timer) <$> (getIntervalStream 1000)
