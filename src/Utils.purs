@@ -9,6 +9,7 @@ import DOM (DOM(..))
 import React.Types (Component(), React())
 import qualified Rx.Observable as Rx
 import Data.DOM.Simple.Types (HTMLElement(..))
+import  Data.Date
 
 import Types
 
@@ -29,13 +30,9 @@ updateAt2 y x newVal arr = map_ (zip arr (0 .. (length arr))) \(Tuple row rowIdx
 getByIndex2 :: forall a. [[a]] -> Number -> Number -> Maybe a
 getByIndex2 arr x y = return arr >>= (flip (!!) $ x) >>= (flip (!!) $ y)
 
-foreign import now
-    """var now = function () { return new Date() }
-    """ :: forall a. Fn0 Datetime
-
 foreign import timeDelta
     """function timeDelta(a) { return function(b) { return b - a } }
-    """ :: Datetime -> Datetime -> Number
+    """ :: Date -> Date -> Number
 
 foreign import toFixed
     """function toFixed(x) { return function(n) { return x.toFixed(n) } }
@@ -95,3 +92,18 @@ foreign import getParameterByName
 foreign import displayBlock
     """function displayBlock(elid) {return function() {document.getElementById(elid).style.display = "block"} }
     """ :: forall e. String -> Eff (dom :: DOM | e) Unit
+
+foreign import scan
+  """
+  function scan(f) {
+    return function(seed) {
+      return function(ob) {
+        return function() {
+          return ob.scan(seed, function(acc, value) {
+            return f(value)(acc)();
+          });
+        };
+      };
+    };
+  }
+  """ :: forall a b e. (a -> b -> Eff e b) -> b -> Rx.Observable a -> Eff e (Rx.Observable b)

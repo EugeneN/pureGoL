@@ -1,18 +1,14 @@
 module Types where
 
+import Data.Date
 import Data.Maybe
 
 type Generation = [[Cell]]
 
-foreign import data Datetime :: *
-
--- instance showDatetime :: Show Datetime where
-    -- show = toString
-
 data State = State { cells        :: [Generation]
                    , runningState :: RunStatus
                    , current      :: Maybe Number
-                   , startTime    :: Datetime
+                   , startTime    :: Date
                    , secondsElapsed :: Number
                    , genCounter     :: Number
                    , genRatio       :: Number

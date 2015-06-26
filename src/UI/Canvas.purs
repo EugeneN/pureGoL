@@ -50,7 +50,7 @@ foreign import fromUiEvent
 
 setupUI :: forall e. State -> Rx.Observable Action -> String
                   -> Eff (canvas :: Canvas, dom :: DOM, trace :: Trace | e) (Rx.Observable State)
-setupUI state actionsStream canvasId = do
+setupUI state outputActionsStream canvasId = do
     displayBlock canvasId
     Just canvas <- getCanvasElementById canvasId
 
@@ -58,15 +58,15 @@ setupUI state actionsStream canvasId = do
         pxStream = eventToCoords <$> rawClicksStream
         fieldStream = coordsInField `Rx.filter` pxStream
         cellsClicksStream = pxToCell <$> fieldStream
-        vStream = runFn0 newSubject
+        inputStateStream = runFn0 newSubject
 
     cellsClicksStream `Rx.subscribe` postUpstream
-    vStream `Rx.subscribe` (renderCanvas canvas)
+    inputStateStream `Rx.subscribe` (renderCanvas canvas)
 
-    pure vStream
+    pure inputStateStream
 
     where
-    postUpstream (Tuple x y) = void <<< pure <<< onNext actionsStream $ (TogglePoint y x)
+    postUpstream (Tuple x y) = void <<< pure <<< onNext outputActionsStream $ (TogglePoint y x)
 
     currentGeneration   = getCurrentGeneration state
     width               = getWidth currentGeneration

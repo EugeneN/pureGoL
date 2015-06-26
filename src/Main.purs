@@ -19,42 +19,44 @@ import Utils
 
 main = do
   uiParam <- getParameterByName "ui"
+  initialState <- getInitialState
+  stateStream <- scan (updateStateFactory ticksPlayPauseStream) initialState jointActionsStream
 
   case uiParam of
-      "react"        -> setupReact
-      "canvas"       -> setupCanvas
-      "console"      -> setupConsole
-      "react_canvas" -> setupReact *> setupCanvas
+      "react"        -> setupReact initialState stateStream
+      "canvas"       -> setupCanvas initialState stateStream
+      "console"      -> setupConsole initialState stateStream
+      "react_canvas" -> (setupReact initialState stateStream) *> (setupCanvas initialState stateStream)
 
-      _              -> setupCanvas
+      _              -> setupCanvas initialState stateStream
 
   keysStream `Rx.subscribe` keyCommand -- TODO move this to UIs, or/and dedicated input component
 
-  pure $ onNext playPauseStream true
+  pure $ onNext ticksPlayPauseStream true
 
   where
-  setupReact = do
+  setupReact initialState stateStream = void $ do
     vStream <- UIReact.setupUI initialState actionsStream "root_layout"
-    scanStream `Rx.subscribe` (void <<< pure <<< onNext vStream)
+    stateStream `Rx.subscribe` (void <<< pure <<< onNext vStream)
 
-  setupCanvas = do
+  setupCanvas initialState stateStream = void $ do
     vStream <- UICanvas.setupUI initialState actionsStream "canvas"
-    scanStream `Rx.subscribe` (void <<< pure <<< onNext vStream)
+    stateStream `Rx.subscribe` (void <<< pure <<< onNext vStream)
 
-  setupConsole = do
+  setupConsole initialState stateStream = void $ do
     vStream <- UIConsole.setupUI initialState actionsStream ""
-    scanStream `Rx.subscribe` (void <<< pure <<< onNext vStream)
+    stateStream `Rx.subscribe` (void <<< pure <<< onNext vStream)
 
   timerStream = (\_ -> Timer) <$> (getIntervalStream 1000)
 
-  intervalStream = (\_ -> Tick) <$> (getIntervalStream initialSpeed)
-  pausableIntervalStream = pausable intervalStream playPauseStream
+  ticksStream = (\_ -> Tick) <$> (getIntervalStream initialSpeed)
+  pausableTicksStream = pausable ticksStream ticksPlayPauseStream
 
   actionsStream = runFn0 newSubject
-  playPauseStream = runFn0 newSubject
+  ticksPlayPauseStream = runFn0 newSubject
 
-  mainStream = pausableIntervalStream <|> actionsStream <|> timerStream
-  scanStream = Rx.scan (updateStateFactory playPauseStream) initialState mainStream
+  jointActionsStream = pausableTicksStream <|> actionsStream <|> timerStream
+
 
   rawKeysStream = fromEvent "keyup"
   keysStream = keyEventToKeyCode <$> rawKeysStream
