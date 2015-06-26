@@ -36,17 +36,13 @@ main = do
   pure $ onNext ticksPlayPauseStream true
 
   where
-  setupReact initialState stateStream = void $ do
-    vStream <- UIReact.setupUI initialState actionsStream "root_layout"
-    stateStream `Rx.subscribe` (void <<< pure <<< onNext vStream)
+  setupReact   = setupUI UIReact.setupUI
+  setupCanvas  = setupUI UICanvas.setupUI
+  setupConsole = setupUI UIConsole.setupUI
 
-  setupCanvas initialState stateStream = void $ do
-    vStream <- UICanvas.setupUI initialState actionsStream "canvas"
-    stateStream `Rx.subscribe` (void <<< pure <<< onNext vStream)
-
-  setupConsole initialState stateStream = void $ do
-    vStream <- UIConsole.setupUI initialState actionsStream ""
-    stateStream `Rx.subscribe` (void <<< pure <<< onNext vStream)
+  setupUI ui initialState stateStream = void $ do
+    viewInputStream <- ui initialState actionsStream ""
+    stateStream `Rx.subscribe` (void <<< pure <<< onNext viewInputStream)
 
   timerStream = (\_ -> Timer) <$> (getIntervalStream 1000)
 
