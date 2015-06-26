@@ -42,9 +42,8 @@ foreign import getIntervalStream
     """ function getIntervalStream(interval) { return Rx.Observable.interval(interval) }
     """ :: forall a. Number -> Rx.Observable a
 
--- FIXME this should produce an effect
 foreign import onNext
-    """ function onNext(obs){ return function() { return function (val) { return obs.onNext(val); } } }
+    """ function onNext(obs){ return function(val) { return function () { return obs.onNext(val); } } }
     """ :: forall a eff. Rx.Observable a -> a -> Eff eff Unit
 
 foreign import pausable
