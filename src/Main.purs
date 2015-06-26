@@ -20,7 +20,7 @@ import Utils
 main = do
   uiParam <- getParameterByName "ui"
   initialState <- getInitialState
-  stateStream <- scan (updateStateFactory ticksPlayPauseStream) initialState jointActionsStream
+  stateStream <- scan processState initialState jointActionsStream
 
   case uiParam of
       "react"        -> setupReact initialState stateStream
@@ -33,7 +33,7 @@ main = do
 
   -- TODO move this to UIs, or/and dedicated input component
   rawKeysStream <- fromEvent "keyup"
-  (keyEventToKeyCode <$> rawKeysStream) `Rx.subscribe` keyCommand 
+  (keyEventToKeyCode <$> rawKeysStream) `Rx.subscribe` keyCommand
 
   onNext ticksPlayPauseStream true
 
@@ -45,6 +45,8 @@ main = do
   setupUI ui placeholderId initialState stateStream = void $ do
     viewInputStream <- ui initialState actionsStream placeholderId
     stateStream `Rx.subscribe` (onNext viewInputStream)
+
+  processState = processStateFactory ticksPlayPauseStream
 
   timerStream = (\_ -> Timer) <$> (getIntervalStream 1000)
 

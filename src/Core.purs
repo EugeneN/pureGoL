@@ -4,7 +4,7 @@ module Core
   , removePoint
   , play
   , pause
-  , updateStateFactory
+  , processStateFactory
   , getTotalGenerations
   , getCurrentGeneration
   , saveNewGeneration
@@ -139,20 +139,20 @@ updateTimer state@(State s) = do
                   })
 
 -- | This is the application's state machine. It maps `Action`s to new `State`s
-updateStateFactory :: Rx.Observable Boolean
+processStateFactory :: Rx.Observable Boolean
                   ->  (forall e. Action -> State
                               -> Eff (now :: Now, trace :: Trace | e) State)
-updateStateFactory playPauseStream = updateState
+processStateFactory playPauseStream = processState
   where
-  updateState Tick              state = pure $ calculateNewGeneration state
-  updateState Play              state = pure $ play playPauseStream state
-  updateState Pause             state = pure $ pause playPauseStream state
-  updateState Toggle            state = pure $ toggle playPauseStream state
-  updateState Save              state = (trace <<< show $ state) *> pure state
-  updateState (Point y x)       state = pure $ addPoint state y x
-  updateState (NoPoint y x)     state = pure $ removePoint state y x
-  updateState (TogglePoint y x) state = pure $ togglePoint state y x
-  updateState (NewCells cs)     state = pure $ saveNewGeneration state cs
-  updateState (Rewind n)        state = pure $ (pause playPauseStream >>> rewind n) state
-  updateState (FForward n)      state = pure $ (pause playPauseStream >>> fforward n) state
-  updateState Timer             state = updateTimer state
+  processState Tick              state = pure $ calculateNewGeneration state
+  processState Play              state = pure $ play playPauseStream state
+  processState Pause             state = pure $ pause playPauseStream state
+  processState Toggle            state = pure $ toggle playPauseStream state
+  processState Save              state = (trace <<< show $ state) *> pure state
+  processState (Point y x)       state = pure $ addPoint state y x
+  processState (NoPoint y x)     state = pure $ removePoint state y x
+  processState (TogglePoint y x) state = pure $ togglePoint state y x
+  processState (NewCells cs)     state = pure $ saveNewGeneration state cs
+  processState (Rewind n)        state = pure $ (pause playPauseStream >>> rewind n) state
+  processState (FForward n)      state = pure $ (pause playPauseStream >>> fforward n) state
+  processState Timer             state = updateTimer state
