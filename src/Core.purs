@@ -20,6 +20,7 @@ import Control.Monad.Eff
 import Data.Tuple
 import qualified Rx.Observable as Rx
 import Data.Date
+import Debug.Trace
 
 import Data
 import Types
@@ -131,20 +132,21 @@ toggle playPauseStream state@(State s) | s.runningState == Running = pause playP
 updateTimer :: forall e. State -> Eff (now :: Now | e) State
 updateTimer state@(State s) = do
   n <- now
-  pure $ State (s { secondsElapsed = toFixed ((timeDelta s.startTime n) / 1000) 2
+  let x = timeDelta s.startTime n
+  pure $ State (s { secondsElapsed = toFixed (x / 1000) 2
                   , genCounter = 0
                   , genRatio = s.genCounter
                   })
 
 -- | This is the application's state machine. It maps `Action`s to new `State`s
-updateStateFactory :: Rx.Observable Boolean ->  (forall e. Action -> State -> Eff (now :: Now | e) State)
+updateStateFactory :: Rx.Observable Boolean ->  (forall e. Action -> State -> Eff (now :: Now, trace :: Trace | e) State)
 updateStateFactory playPauseStream = updateState
   where
   updateState Tick              state = pure $ calculateNewGeneration state
   updateState Play              state = pure $ play playPauseStream state
   updateState Pause             state = pure $ pause playPauseStream state
   updateState Toggle            state = pure $ toggle playPauseStream state
-  updateState Save              state = pure $ proxyLog state
+  updateState Save              state = (trace <<< show $ state) *> pure state
   updateState (Point y x)       state = pure $ addPoint state y x
   updateState (NoPoint y x)     state = pure $ removePoint state y x
   updateState (TogglePoint y x) state = pure $ togglePoint state y x

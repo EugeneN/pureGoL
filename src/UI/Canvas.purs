@@ -54,10 +54,15 @@ setupUI state outputActionsStream canvasId = do
     displayBlock canvasId
     Just canvas <- getCanvasElementById canvasId
 
-    let rawClicksStream = fromUiEvent canvas "click"
+    offtop <- getElementOffsetTop "canvas"
+    offleft <- getElementOffsetLeft "canvas"
+
+    let fieldOffsetTop = topOffset + offtop
+        fieldOffsetLeft = leftOffset + offleft
+        rawClicksStream = fromUiEvent canvas "click"
         pxStream = eventToCoords <$> rawClicksStream
-        fieldStream = coordsInField `Rx.filter` pxStream
-        cellsClicksStream = pxToCell <$> fieldStream
+        fieldStream = (coordsInField fieldOffsetLeft fieldOffsetTop) `Rx.filter` pxStream
+        cellsClicksStream = (pxToCell fieldOffsetLeft fieldOffsetTop) <$> fieldStream
         inputStateStream = runFn0 newSubject
 
     cellsClicksStream `Rx.subscribe` postUpstream
@@ -74,18 +79,17 @@ setupUI state outputActionsStream canvasId = do
     fieldWidth          = width * cellSize
     fieldHeight         = height * cellSize
 
-    fieldOffsetTop = topOffset + (getElementOffsetTop "canvas")
-    fieldOffsetLeft = leftOffset + (getElementOffsetLeft "canvas")
-
     eventToCoords e = Tuple e.pageX e.pageY
 
-    coordsInField (Tuple x y) = x > fieldOffsetLeft
-                             && x < fieldOffsetLeft + fieldWidth
-                             && y > fieldOffsetTop
-                             && y < fieldOffsetTop + fieldHeight
+    coordsInField fieldOffsetLeft fieldOffsetTop (Tuple x y) =
+            x > fieldOffsetLeft
+         && x < fieldOffsetLeft + fieldWidth
+         && y > fieldOffsetTop
+         && y < fieldOffsetTop + fieldHeight
 
-    pxToCell (Tuple x y) = Tuple (mathFloor $ (x - fieldOffsetLeft) / cellSize)
-                                 (mathFloor $ (y - fieldOffsetTop) / cellSize)
+    pxToCell fieldOffsetLeft fieldOffsetTop (Tuple x y) =
+        Tuple (mathFloor $ (x - fieldOffsetLeft) / cellSize)
+              (mathFloor $ (y - fieldOffsetTop) / cellSize)
 
 
 renderCanvas :: forall e. CanvasElement -> State -> Eff (canvas :: Canvas, trace :: Trace | e) Unit

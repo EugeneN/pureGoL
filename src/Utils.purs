@@ -16,10 +16,6 @@ import Types
 map_ = flip map
 filter_ = flip filter
 
-foreign import proxyLog
-    """function proxyLog(a) { console.log(a); return a }
-    """ :: forall a. a -> a
-
 updateAt2 :: forall a. Number -> Number -> a -> [[a]] -> [[a]]
 updateAt2 y x newVal arr = map_ (zip arr (0 .. (length arr))) \(Tuple row rowIdx) ->
     if rowIdx == y
@@ -71,12 +67,12 @@ foreign import mathFloor
     """ :: Number -> Number
 
 foreign import getElementOffsetLeft
-    """function getElementOffsetLeft(el){return document.getElementById(el).offsetLeft }
-    """ :: forall a e. a -> Number
+    """function getElementOffsetLeft(el){ return function() { return document.getElementById(el).offsetLeft } }
+    """ :: forall e. String -> Eff (dom :: DOM | e) Number
 
 foreign import getElementOffsetTop
-    """function getElementOffsetTop(el){return document.getElementById(el).offsetTop }
-    """ :: forall a e. a -> Number
+    """function getElementOffsetTop(el){ return function() { return document.getElementById(el).offsetTop } }
+    """ :: forall e. String -> Eff (dom :: DOM | e) Number
 
 foreign import getParameterByName
     """function getParameterByName(name) {

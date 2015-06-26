@@ -18,7 +18,10 @@ instance showState :: Show State where
     show (State s) = "State { cells: " ++ show s.cells
                         ++ ", runningState: " ++ show s.runningState
                         ++ ", current: " ++ show s.current
-                        ++ ", startTime: " ++ "show s.startTime"
+                        ++ ", startTime: " ++ show s.startTime
+                        ++ ", genRatio:" ++ show s.genRatio
+                        ++ ", genCounter: " ++ show s.genCounter
+                        ++ ", secondsElapsed: " ++ show s.secondsElapsed
                         ++ "}"
 
 data Action = Point Number Number
