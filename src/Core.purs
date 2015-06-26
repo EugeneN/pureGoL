@@ -135,8 +135,7 @@ updateTimer state@(State s) = do
   let x = timeDelta s.startTime n
   pure $ State (s { secondsElapsed = toFixed (x / 1000) 2
                   , genCounter = 0
-                  , genRatio = s.genCounter
-                  })
+                  , genRatio = s.genCounter })
 
 -- | This is the application's state machine. It maps `Action`s to new `State`s
 processStateFactory :: Rx.Observable Boolean

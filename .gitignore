@@ -1,5 +1,6 @@
 output/**
 bower_components/**
 .idea/**
-public/GoL.js
+public/*.js
+public/*.css
 .psci_modules/**
