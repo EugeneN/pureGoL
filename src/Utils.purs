@@ -34,9 +34,15 @@ foreign import toFixed
     """function toFixed(x) { return function(n) { return +x.toFixed(n) } }
     """ :: Number -> Number -> Number
 
+-- Rx bindings
+
 foreign import newSubject
     """ var newSubject = function () { return new Rx.Subject() }
     """ :: forall a. Fn0 (Rx.Observable a)
+
+foreign import fromEvent
+  """function fromEvent(ev) { return function() {return Rx.Observable.fromEvent(document.body, ev)} }
+  """ :: forall eff z. String -> Eff (dom :: DOM | eff) (Rx.Observable z)
 
 foreign import getIntervalStream
     """ function getIntervalStream(interval) { return Rx.Observable.interval(interval) }
@@ -50,37 +56,8 @@ foreign import pausable
     """ function pausable(obs){ return function (pauser) { return obs.pausable(pauser); } }
     """ :: forall a b. Rx.Observable a -> Rx.Observable b -> Rx.Observable a
 
-foreign import setProps
-    """ function setProps(view) { return function(props) { return function(){ return view.setProps(props); } } }
-    """ :: forall a eff. Component -> a -> Eff (dom :: DOM, react :: React | eff) Unit
-
-foreign import fromEvent
-  """function fromEvent(ev) { return function() {return Rx.Observable.fromEvent(document.body, ev)} }
-  """ :: forall eff z. String -> Eff (dom :: DOM | eff) (Rx.Observable z)
-
-foreign import getElementOffsetLeft
-    """function getElementOffsetLeft(el){ return function() { return document.getElementById(el).offsetLeft } }
-    """ :: forall e. String -> Eff (dom :: DOM | e) Number
-
-foreign import getElementOffsetTop
-    """function getElementOffsetTop(el){ return function() { return document.getElementById(el).offsetTop } }
-    """ :: forall e. String -> Eff (dom :: DOM | e) Number
-
-foreign import getParameterByName
-    """function getParameterByName(name) {
-         return function() {
-           name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
-           var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
-               results = regex.exec(location.search);
-           return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
-         }
-       }
-    """ :: forall e. String -> Eff e String
-
-foreign import displayBlock
-    """function displayBlock(elid) {return function() {document.getElementById(elid).style.display = "block"} }
-    """ :: forall e. String -> Eff (dom :: DOM | e) Unit
-
+-- | Modification of the original `purescript-rx` `scan`, which enables
+-- | processing function to produce effects
 foreign import scan
   """
   function scan(f) {
@@ -95,3 +72,29 @@ foreign import scan
     };
   }
   """ :: forall a b e. (a -> b -> Eff e b) -> b -> Rx.Observable a -> Eff e (Rx.Observable b)
+
+-- DOM bindings
+
+foreign import getElementOffsetLeft
+    """function getElementOffsetLeft(el){ return function() { return document.getElementById(el).offsetLeft } }
+    """ :: forall e. String -> Eff (dom :: DOM | e) Number
+
+foreign import getElementOffsetTop
+    """function getElementOffsetTop(el){ return function() { return document.getElementById(el).offsetTop } }
+    """ :: forall e. String -> Eff (dom :: DOM | e) Number
+
+-- | Returns url's query parameters by name
+foreign import getParameterByName
+    """function getParameterByName(name) {
+         return function() {
+           name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+           var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+               results = regex.exec(location.search);
+           return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+         }
+       }
+    """ :: forall e. String -> Eff e String
+
+foreign import displayBlock
+    """function displayBlock(elid) {return function() {document.getElementById(elid).style.display = "block"} }
+    """ :: forall e. String -> Eff (dom :: DOM | e) Unit

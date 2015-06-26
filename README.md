@@ -28,7 +28,6 @@ See http://eugenen.github.io/pureGoL/ for demo.
 - *optional if `browserify` can't find `npm` module for `rx`: `npm install rx`
 - `pulp browserify > public/GoL.js`
 - `open public/index.html`
-
 # Module Documentation
 
 ## Module Core
@@ -86,18 +85,18 @@ This is the application's state machine. It maps `Action`s to new `State`s
 
 ``` purescript
 data KeyCode
-  = Insert 
-  | Escape 
-  | Enter 
-  | Delete 
-  | F1 
-  | F2 
-  | F3 
-  | F4 
-  | F5 
-  | Space 
-  | LeftArrow 
-  | RightArrow 
+  = Insert
+  | Escape
+  | Enter
+  | Delete
+  | F1
+  | F2
+  | F3
+  | F4
+  | F5
+  | Space
+  | LeftArrow
+  | RightArrow
   | UnknownKey Number
 ```
 
@@ -158,15 +157,15 @@ data Action
   = Point Number Number
   | NoPoint Number Number
   | TogglePoint Number Number
-  | Tick 
-  | Pause 
-  | Play 
-  | Toggle 
-  | Save 
+  | Tick
+  | Pause
+  | Play
+  | Toggle
+  | Save
   | NewCells Generation
   | Rewind Number
   | FForward Number
-  | Timer 
+  | Timer
 ```
 
 
@@ -181,8 +180,8 @@ instance showAction :: Show Action
 
 ``` purescript
 data Cell
-  = Alive 
-  | Dead 
+  = Alive
+  | Dead
 ```
 
 
@@ -204,8 +203,8 @@ instance showCell :: Show Cell
 
 ``` purescript
 data RunStatus
-  = Running 
-  | Paused 
+  = Running
+  | Paused
 ```
 
 
@@ -357,6 +356,13 @@ renderMainView :: forall eff. String -> State -> Rx.Observable Action -> Eff (re
 ```
 
 
+#### `setProps`
+
+``` purescript
+setProps :: forall a eff. Component -> a -> Eff (react :: React, dom :: DOM | eff) Unit
+```
+
+
 
 ## Module Utils
 
@@ -394,6 +400,12 @@ toFixed :: Number -> Number -> Number
 newSubject :: forall a. Fn0 (Rx.Observable a)
 ```
 
+#### `fromEvent`
+
+``` purescript
+fromEvent :: forall eff z. String -> Eff (dom :: DOM | eff) (Rx.Observable z)
+```
+
 
 #### `getIntervalStream`
 
@@ -405,8 +417,9 @@ getIntervalStream :: forall a. Number -> Rx.Observable a
 #### `onNext`
 
 ``` purescript
-onNext :: forall a. Rx.Observable a -> a -> Rx.Observable a
+onNext :: forall a eff. Rx.Observable a -> a -> Eff eff Unit
 ```
+
 
 #### `pausable`
 
@@ -415,26 +428,20 @@ pausable :: forall a b. Rx.Observable a -> Rx.Observable b -> Rx.Observable a
 ```
 
 
-#### `setProps`
+#### `scan`
 
 ``` purescript
-setProps :: forall a eff. Component -> a -> Eff (react :: React, dom :: DOM | eff) Unit
+scan :: forall a b e. (a -> b -> Eff e b) -> b -> Rx.Observable a -> Eff e (Rx.Observable b)
 ```
 
-
-#### `fromEvent`
-
-``` purescript
-fromEvent :: forall eff z. String -> Eff (dom :: DOM | eff) (Rx.Observable z)
-```
-
+Modification of the original `purescript-rx` `scan`, which enables
+processing function to produce effects
 
 #### `getElementOffsetLeft`
 
 ``` purescript
 getElementOffsetLeft :: forall e. String -> Eff (dom :: DOM | e) Number
 ```
-
 
 #### `getElementOffsetTop`
 
@@ -449,20 +456,10 @@ getElementOffsetTop :: forall e. String -> Eff (dom :: DOM | e) Number
 getParameterByName :: forall e. String -> Eff e String
 ```
 
+Returns url's query parameters by name
 
 #### `displayBlock`
 
 ``` purescript
 displayBlock :: forall e. String -> Eff (dom :: DOM | e) Unit
 ```
-
-
-#### `scan`
-
-``` purescript
-scan :: forall a b e. (a -> b -> Eff e b) -> b -> Rx.Observable a -> Eff e (Rx.Observable b)
-```
-
-
-
-
