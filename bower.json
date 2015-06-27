@@ -16,7 +16,8 @@
     "purescript-canvas": "*",
     "purescript-datetime": "*",
     "purescript-math": "*",
-    "purescript-random": "*"
+    "purescript-random": "*",
+    "purescript-refs": "*"
   },
   "ignore": [
     "**/.*",

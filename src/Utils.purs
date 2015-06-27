@@ -34,6 +34,10 @@ foreign import toFixed
     """function toFixed(x) { return function(n) { return +x.toFixed(n) } }
     """ :: Number -> Number -> Number
 
+foreign import hex
+    """function hex(n) {return n.toString(16) }
+    """ :: Number -> String
+
 -- Rx bindings
 
 foreign import newSubject

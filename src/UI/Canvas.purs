@@ -13,12 +13,14 @@ import Graphics.Canvas
 import Control.Monad
 import Control.Apply
 import Data.Traversable
+import Control.Monad.Eff.Random
 
 import Data.Function
 import Data.Maybe
 import Data.Tuple
 import Debug.Trace
 import DOM (DOM(..))
+import Control.Monad.Eff.Ref
 
 import qualified Rx.Observable as Rx
 
@@ -28,7 +30,7 @@ import Data.DOM.Simple.Events
 
 import Math
 
-type Color = String
+-- type Color = String
 
 -- data UIEvent = Click | RClick
 type UIEvent = String
@@ -46,18 +48,64 @@ gridColor   = "#F8F8F8"
 cellColor   = black
 labelColor  = black
 
+data Color = Color { r :: Number, g :: Number, b :: Number }
+
+instance eqColor :: Eq Color where
+    (==) (Color a) (Color b) = a.r == b.r && a.g == b.g && a.b == b.b
+    (/=) a         b         = not $ a == b
+
+instance ordColor :: Ord Color where
+    compare c@(Color a) c'@(Color b) =
+        if c == c'
+        then EQ
+        else if a.r < b.r && a.g < b.g && a.b < b.b
+            then LT
+            else GT
+
+instance semiringColor :: Semiring Color where
+    (+) (Color {r=r, g=g, b=b})
+        (Color {r=r',g=g',b=b'}) = Color { r: r + r'
+                                         , g: g + g'
+                                         , b: b + b' }
+
+    zero                    = Color { r: 0, g: 0, b: 0 }
+
+    (*) (Color a) (Color b) = Color { r: a.r * b.r
+                                    , g: a.g * b.g
+                                    , b: a.b * b.b }
+    one                     = Color { r: 1, g: 1, b: 1 }
+
+instance ringColor :: Ring Color where
+    (-) (Color a) (Color b) = Color { r: (a.r - b.r), g: (a.g - b.g), b: (a.b - b.b) }
+
+instance showColor :: Show Color where
+    show (Color a) = "#" ++ show (round a.r) ++ show (round a.g) ++ show (round a.b)
+
+data Direction = Up | Down
+
+data LocalState = LocalState { state :: State
+                             , color :: Color
+                             , dir   :: Direction }
+
+minColor   = Color { r: 50,  g: 50,  b: 50  }
+maxColor   = Color { r: 220, g: 220, b: 220 }
+deltaColor = Color { r: 5,   g: 5,   b: 5 }
+
 foreign import fromUiEvent
   """function fromUiEvent(el) {return function(ev) {return Rx.Observable.fromEvent(el, ev) } }
   """ :: forall a e. e -> UIEvent -> Rx.Observable a
 
 setupUI :: forall e. State -> Rx.Observable Action -> String
-                  -> Eff (canvas :: Canvas, dom :: DOM, trace :: Trace | e) (Rx.Observable State)
+                  -> Eff ( canvas :: Canvas, dom :: DOM, trace :: Trace
+                         , random :: Random, ref :: Ref | e) (Rx.Observable State)
 setupUI state outputActionsStream canvasId = do
     displayBlock canvasId
     Just canvas <- getCanvasElementById canvasId
 
     offtop <- getElementOffsetTop "canvas"
     offleft <- getElementOffsetLeft "canvas"
+
+    localState <- newRef $ LocalState { state: state, color: minColor, dir: Up }
 
     let fieldOffsetTop = topOffset + offtop
         fieldOffsetLeft = leftOffset + offleft
@@ -68,11 +116,36 @@ setupUI state outputActionsStream canvasId = do
         inputStateStream = runFn0 newSubject
 
     cellsClicksStream `Rx.subscribe` postUpstream
-    inputStateStream `Rx.subscribe` (renderCanvas canvas)
+
+    inputStateStream `Rx.subscribe` (\s -> modifyRef localState (\(LocalState ls) -> LocalState (ls {state = s})))
+    renderLoop `Rx.subscribe` (renderLocalState canvas localState)
 
     pure inputStateStream
 
     where
+    renderLocalState :: forall a e. CanvasElement -> RefVal LocalState -> a
+                                 -> Eff (canvas :: Canvas, trace :: Trace, random :: Random, ref :: Ref | e) Unit
+    renderLocalState canvas ls _ = do
+        (LocalState s) <- readRef ls
+
+        let x = stepColor s.color s.dir
+        writeRef ls (LocalState (s { color = x.color
+                                   , dir = x.dir }))
+        renderCanvas canvas s.state s.color
+
+    stepColor :: Color -> Direction -> {color :: Color, dir :: Direction}
+    stepColor cur dir =
+        case dir of
+            Up   -> let newColor = cur + deltaColor
+                    in if newColor < maxColor
+                           then {color: newColor, dir: Up}
+                           else stepColor cur Down
+            Down -> let newColor = cur - deltaColor
+                    in if newColor > minColor
+                           then {color: newColor, dir: Down}
+                           else stepColor cur Up
+
+    renderLoop = getIntervalStream 16
     postUpstream (Tuple x y) = onNext outputActionsStream $ (TogglePoint y x)
 
     currentGeneration   = getCurrentGeneration state
@@ -94,14 +167,15 @@ setupUI state outputActionsStream canvasId = do
               (floor $ (y - fieldOffsetTop) / cellSize)
 
 
-renderCanvas :: forall e. CanvasElement -> State -> Eff (canvas :: Canvas, trace :: Trace | e) Unit
-renderCanvas canvas state@(State s) = do
+renderCanvas :: forall e. CanvasElement -> State -> Color
+                       -> Eff (canvas :: Canvas, trace :: Trace, random :: Random | e) Unit
+renderCanvas canvas state@(State s) color = do
     ctx <- getContext2D canvas
 
     drawBackground  ctx 0 0 maxX maxY
     drawGrid        ctx width height minX minY maxX maxY
     drawBorders     ctx minX minY maxX maxY
-    drawCells       ctx currentGeneration
+    drawCells       ctx currentGeneration color
     drawLabels      ctx state
 
     return unit
@@ -167,8 +241,8 @@ drawBorders ctx minX minY maxX maxY = do
     beginPath ctx
 
     moveTo ctx minX minY
-    lineTo ctx (maxX + cellSize) minY
-    lineTo ctx (maxX + cellSize) maxY
+    lineTo ctx maxX minY
+    lineTo ctx maxX maxY
     lineTo ctx minX maxY
     lineTo ctx minX minY
 
@@ -200,14 +274,22 @@ drawGrid ctx x y minX minY maxX maxY = do
     restore ctx
     return unit
 
-drawCells :: forall e. Context2D -> Generation -> Eff (canvas :: Canvas | e) Unit
-drawCells ctx cells = do
+getRandomColor = do
+    r <- randomRange 50 250
+    g <- randomRange 50 250
+    b <- randomRange 50 250
+    return $ "#" ++ (hex $ floor r) ++ (hex $ floor g) ++ (hex $ floor b)
+
+drawCells :: forall e. Context2D -> Generation -> Color -> Eff (canvas :: Canvas, random :: Random | e) Unit
+drawCells ctx cells cellColor = do
     save ctx
+    -- cellColor <- getRandomColor
 
     for (zip cells (0 .. (length cells))) $ \(Tuple row y) ->
         for (zip row (0 .. (length row))) $ \(Tuple cell x) ->
             case cell of
-                Alive -> drawCell cellColor ctx x y
+                Alive -> do
+                    drawCell (show cellColor) ctx x y
                 Dead -> pure unit
 
     restore ctx
@@ -215,7 +297,7 @@ drawCells ctx cells = do
 
 drawCell = drawCircle
 
-drawSquare :: forall e. Color -> Context2D -> Number -> Number -> Eff (canvas :: Canvas | e) Unit
+drawSquare :: forall e. String -> Context2D -> Number -> Number -> Eff (canvas :: Canvas | e) Unit
 drawSquare color ctx x y = do
     save ctx
 
@@ -228,7 +310,7 @@ drawSquare color ctx x y = do
     restore ctx
     return unit
 
-drawCircle :: forall e. Color -> Context2D -> Number -> Number -> Eff (canvas :: Canvas | e) Unit
+drawCircle :: forall e. String -> Context2D -> Number -> Number -> Eff (canvas :: Canvas | e) Unit
 drawCircle color ctx x y = do
     save ctx
 
