@@ -28,6 +28,8 @@ See http://eugenen.github.io/pureGoL/ for demo.
 - *optional if `browserify` can't find `npm` module for `rx`: `npm install rx`
 - `pulp browserify > public/GoL.js`
 - `open public/index.html`
+
+
 # Module Documentation
 
 ## Module Core
