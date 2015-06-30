@@ -16,89 +16,47 @@ import Types
 map_ = flip map
 filter_ = flip filter
 
-updateAt2 :: forall a. Number -> Number -> a -> [[a]] -> [[a]]
+updateAt2 :: forall a. Number -> Number -> a -> Array (Array a) -> Array (Array a)
 updateAt2 y x newVal arr = map_ (zip arr (0 .. (length arr))) \(Tuple row rowIdx) ->
     if rowIdx == y
         then map_ (zip row (0 .. (length row))) \(Tuple oldVal columnIdx) ->
             if columnIdx == x then newVal else oldVal
         else row
 
-getByIndex2 :: forall a. [[a]] -> Number -> Number -> Maybe a
+getByIndex2 :: forall a. Array (Array a) -> Number -> Number -> Maybe a
 getByIndex2 arr x y = return arr >>= (flip (!!) $ x) >>= (flip (!!) $ y)
 
-foreign import timeDelta
-    """function timeDelta(a) { return function(b) { return b - a } }
-    """ :: Date -> Date -> Number
+foreign import timeDelta :: Date -> Date -> Number
 
-foreign import toFixed
-    """function toFixed(x) { return function(n) { return +x.toFixed(n) } }
-    """ :: Number -> Number -> Number
+foreign import toFixed :: Number -> Number -> Number
 
-foreign import hex
-    """function hex(n) {return n.toString(16) }
-    """ :: Number -> String
+foreign import hex :: Number -> String
 
 -- Rx bindings
 
-foreign import newSubject
-    """ var newSubject = function () { return new Rx.Subject() }
-    """ :: forall a. Fn0 (Rx.Observable a)
+foreign import newSubject :: forall a. Fn0 (Rx.Observable a)
 
-foreign import fromEvent
-  """function fromEvent(ev) { return function() {return Rx.Observable.fromEvent(document.body, ev)} }
-  """ :: forall eff z. String -> Eff (dom :: DOM | eff) (Rx.Observable z)
+foreign import fromEvent :: forall eff z. String -> Eff (dom :: DOM | eff) (Rx.Observable z)
 
-foreign import getIntervalStream
-    """ function getIntervalStream(interval) { return Rx.Observable.interval(interval) }
-    """ :: forall a. Number -> Rx.Observable a
+foreign import getIntervalStream :: forall a. Number -> Rx.Observable a
 
-foreign import onNext
-    """ function onNext(obs){ return function(val) { return function () { return obs.onNext(val); } } }
-    """ :: forall a eff. Rx.Observable a -> a -> Eff eff Unit
+foreign import onNext :: forall a eff. Rx.Observable a -> a -> Eff eff Unit
 
-foreign import pausable
-    """ function pausable(obs){ return function (pauser) { return obs.pausable(pauser); } }
-    """ :: forall a b. Rx.Observable a -> Rx.Observable b -> Rx.Observable a
+foreign import pausable :: forall a b. Rx.Observable a -> Rx.Observable b -> Rx.Observable a
 
 -- | Modification of the original `purescript-rx` `scan`, which enables
 -- | processing function to produce effects
-foreign import scan
-  """
-  function scan(f) {
-    return function(seed) {
-      return function(ob) {
-        return function() {
-          return ob.scan(seed, function(acc, value) {
-            return f(value)(acc)();
-          });
-        };
-      };
-    };
-  }
-  """ :: forall a b e. (a -> b -> Eff e b) -> b -> Rx.Observable a -> Eff e (Rx.Observable b)
+foreign import scan :: forall a b e. (a -> b -> Eff e b) -> b -> Rx.Observable a -> Eff e (Rx.Observable b)
 
 -- DOM bindings
 
-foreign import getElementOffsetLeft
-    """function getElementOffsetLeft(el){ return function() { return document.getElementById(el).offsetLeft } }
-    """ :: forall e. String -> Eff (dom :: DOM | e) Number
+foreign import getElementOffsetLeft :: forall e. String -> Eff (dom :: DOM | e) Number
 
-foreign import getElementOffsetTop
-    """function getElementOffsetTop(el){ return function() { return document.getElementById(el).offsetTop } }
-    """ :: forall e. String -> Eff (dom :: DOM | e) Number
+foreign import getElementOffsetTop :: forall e. String -> Eff (dom :: DOM | e) Number
 
 -- | Returns url's query parameters by name
-foreign import getParameterByName
-    """function getParameterByName(name) {
-         return function() {
-           name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
-           var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
-               results = regex.exec(location.search);
-           return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
-         }
-       }
-    """ :: forall e. String -> Eff e String
+foreign import getParameterByName :: forall e. String -> Eff e String
 
-foreign import displayBlock
-    """function displayBlock(elid) {return function() {document.getElementById(elid).style.display = "block"} }
-    """ :: forall e. String -> Eff (dom :: DOM | e) Unit
+foreign import displayBlock :: forall e. String -> Eff (dom :: DOM | e) Unit
+
+foreign import which :: forall a. a -> Number

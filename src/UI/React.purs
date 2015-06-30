@@ -93,6 +93,4 @@ renderMainView :: forall eff. String
 renderMainView targetId state actionsStream =
     renderComponentById (mainView { actionsStream: actionsStream, state: state } []) targetId
 
-foreign import setProps
-    """ function setProps(view) { return function(props) { return function(){ return view.setProps(props); } } }
-    """ :: forall a eff. Component -> a -> Eff (dom :: DOM, react :: React | eff) Unit
+foreign import setProps :: forall a eff. Component -> a -> Eff (dom :: DOM, react :: React | eff) Unit

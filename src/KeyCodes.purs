@@ -52,5 +52,3 @@ instance eqKeyCode :: Eq KeyCode where
     (==) _      _      = false
     (/=) a      b      = not $ (==) a b
 
-
-foreign import which "function which(ev) { return ev.which; }" :: forall a. a -> Number

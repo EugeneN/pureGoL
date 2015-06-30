@@ -12,9 +12,7 @@ import Data.Tuple
 import Data.Foldable
 import qualified Rx.Observable as Rx
 
-foreign import exportGlobal
-  """function exportGlobal(fname) {return function(f) {return function() {window[fname] = f; return {}; } } }
-  """ :: forall e a. String -> (Number -> Number -> Eff e Unit) -> Eff e Unit
+foreign import exportGlobal :: forall e a. String -> (Number -> Number -> Eff e Unit) -> Eff e Unit
 
 
 setupUI :: forall e. State -> Rx.Observable Action -> String -> Eff (trace :: Trace | e) (Rx.Observable State)

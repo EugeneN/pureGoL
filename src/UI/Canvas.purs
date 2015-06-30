@@ -91,9 +91,7 @@ minColor   = Color { r: 50,  g: 50,  b: 50  }
 maxColor   = Color { r: 220, g: 220, b: 220 }
 deltaColor = Color { r: 5,   g: 5,   b: 5 }
 
-foreign import fromUiEvent
-  """function fromUiEvent(el) {return function(ev) {return Rx.Observable.fromEvent(el, ev) } }
-  """ :: forall a e. e -> UIEvent -> Rx.Observable a
+foreign import fromUiEvent :: forall a e. e -> UIEvent -> Rx.Observable a
 
 setupUI :: forall e. State -> Rx.Observable Action -> String
                   -> Eff ( canvas :: Canvas, dom :: DOM, trace :: Trace
@@ -326,7 +324,7 @@ drawCircle color ctx x y = do
     return unit
 
 getWidth :: Generation -> Number
-getWidth (y:ys) = length y
+getWidth ys = length $ y !! 0
 
 getHeight :: Generation -> Number
 getHeight xs = length xs

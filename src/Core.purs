@@ -90,7 +90,7 @@ genNewGeneration currentGeneration = calcNewCells currentGeneration
         Alive -> if liveCount < 2 || liveCount > 3 then Dead else Alive
         Dead  -> if liveCount == 3 then Alive else Dead
 
-    findNeighbours :: Number -> Number -> Generation -> [Cell]
+    findNeighbours :: Number -> Number -> Generation -> Array Cell
     findNeighbours y x cells = catMaybes maybeNeighbours
         where
         maybeNeighbours = map (\[y, x] -> getByIndex2 cells y x) newCells

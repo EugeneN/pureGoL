@@ -3,9 +3,9 @@ module Types where
 import Data.Date
 import Data.Maybe
 
-type Generation = [[Cell]]
+type Generation = Array (Array Cell)
 
-data State = State { cells        :: [Generation]
+data State = State { cells        :: Array Generation
                    , runningState :: RunStatus
                    , current      :: Maybe Number
                    , startTime    :: Date
