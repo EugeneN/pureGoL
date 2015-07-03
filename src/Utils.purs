@@ -6,24 +6,24 @@ import Data.Function
 import Data.Maybe
 import Data.Tuple
 import DOM (DOM(..))
-import React.Types (Component(), React())
 import qualified Rx.Observable as Rx
 import Data.DOM.Simple.Types (HTMLElement(..))
 import  Data.Date
+import Prelude
 
 import Types
 
-map_ = flip map
+map_ = (<#>)
 filter_ = flip filter
 
-updateAt2 :: forall a. Number -> Number -> a -> Array (Array a) -> Array (Array a)
+updateAt2 :: forall a. Int -> Int -> a -> Array (Array a) -> Array (Array a)
 updateAt2 y x newVal arr = map_ (zip arr (0 .. (length arr))) \(Tuple row rowIdx) ->
     if rowIdx == y
         then map_ (zip row (0 .. (length row))) \(Tuple oldVal columnIdx) ->
             if columnIdx == x then newVal else oldVal
         else row
 
-getByIndex2 :: forall a. Array (Array a) -> Number -> Number -> Maybe a
+getByIndex2 :: forall a. Array (Array a) -> Int -> Int -> Maybe a
 getByIndex2 arr x y = return arr >>= (flip (!!) $ x) >>= (flip (!!) $ y)
 
 foreign import timeDelta :: Date -> Date -> Number
@@ -50,13 +50,13 @@ foreign import scan :: forall a b e. (a -> b -> Eff e b) -> b -> Rx.Observable a
 
 -- DOM bindings
 
-foreign import getElementOffsetLeft :: forall e. String -> Eff (dom :: DOM | e) Number
+foreign import getElementOffsetLeft :: forall e. String -> Eff (dom :: DOM | e) Int
 
-foreign import getElementOffsetTop :: forall e. String -> Eff (dom :: DOM | e) Number
+foreign import getElementOffsetTop :: forall e. String -> Eff (dom :: DOM | e) Int
 
 -- | Returns url's query parameters by name
 foreign import getParameterByName :: forall e. String -> Eff e String
 
 foreign import displayBlock :: forall e. String -> Eff (dom :: DOM | e) Unit
 
-foreign import which :: forall a. a -> Number
+foreign import which :: forall a. a -> Int

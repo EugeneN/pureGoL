@@ -22,14 +22,15 @@ import Control.Monad.Eff
 import Data.Tuple
 import qualified Rx.Observable as Rx
 import Data.Date
-import Debug.Trace
+import Control.Monad.Eff.Console
+import Prelude
 
 import Data
 import Types
 import Utils
 
 emptyGeneration = [[]] :: Generation
-initialSpeed = 50
+initialSpeed = 50.0
 
 getInitialState :: forall e. Eff (now :: Now | e) State
 getInitialState = do
@@ -39,11 +40,11 @@ getInitialState = do
                , runningState: Running
                , current: Nothing
                , startTime: startTime
-               , secondsElapsed: 0
-               , genCounter: 0
-               , genRatio: 0 }
+               , secondsElapsed: 0.0
+               , genCounter: 0.0
+               , genRatio: 0.0 }
 
-getTotalGenerations :: State -> Number
+getTotalGenerations :: State -> Int
 getTotalGenerations (State s) = length s.cells
 
 getCurrentGeneration :: State -> Generation
@@ -53,9 +54,9 @@ getCurrentGeneration (State s) = case s.current of
 
 saveNewGeneration :: State -> Generation -> State
 saveNewGeneration (State s) ng = State (s { cells = snoc s.cells ng
-                                          , genCounter = s.genCounter + 1 })
+                                          , genCounter = s.genCounter + 1.0 })
 
-rewind :: Number -> State -> State
+rewind :: Int -> State -> State
 rewind n (State s) =
     let newCurrent = case s.current of
                         Just x  -> x - n
@@ -63,7 +64,7 @@ rewind n (State s) =
         boundedNewCurrent = if newCurrent < 0 then 0 else newCurrent
     in State (s { current = Just boundedNewCurrent })
 
-fforward :: Number -> State -> State
+fforward :: Int -> State -> State
 fforward n state@(State s) = case s.current of
     Just x ->
         let maxIndex = (length s.cells) - 1
@@ -85,12 +86,12 @@ genNewGeneration currentGeneration = calcNewCells currentGeneration
                     liveCount = length (filter ((==) Alive) neighbours)
                 in lifeStep liveCount cell
 
-    lifeStep :: Number -> Cell -> Cell
+    lifeStep :: Int -> Cell -> Cell
     lifeStep liveCount cell = case cell of
         Alive -> if liveCount < 2 || liveCount > 3 then Dead else Alive
         Dead  -> if liveCount == 3 then Alive else Dead
 
-    findNeighbours :: Number -> Number -> Generation -> Array Cell
+    findNeighbours :: Int -> Int -> Generation -> Array Cell
     findNeighbours y x cells = catMaybes maybeNeighbours
         where
         maybeNeighbours = map (\[y, x] -> getByIndex2 cells y x) newCells
@@ -103,7 +104,7 @@ calculateNewGeneration state = saveNewGeneration state newGeneration
   where
   newGeneration = (getCurrentGeneration >>> genNewGeneration) state
 
-updatePoint :: Cell -> State -> Number -> Number -> State
+updatePoint :: Cell -> State -> Int -> Int -> State
 updatePoint newCell state y x = saveNewGeneration state newGeneration
     where currentGeneration = getCurrentGeneration state
           newGeneration = updateAt2 y x newCell currentGeneration
@@ -111,7 +112,7 @@ updatePoint newCell state y x = saveNewGeneration state newGeneration
 addPoint    = updatePoint Alive
 removePoint = updatePoint Dead
 
-togglePoint :: State -> Number -> Number -> State
+togglePoint :: State -> Int -> Int -> State
 togglePoint state y x = case getByIndex2 (getCurrentGeneration state) y x of
     Just Alive -> removePoint state y x
     Just Dead  -> addPoint state y x
@@ -135,8 +136,8 @@ updateTimer :: forall e. State -> Eff (now :: Now | e) State
 updateTimer state@(State s) = do
   n <- now
   let x = timeDelta s.startTime n
-  pure $ State (s { secondsElapsed = toFixed (x / 1000) 2
-                  , genCounter = 0
+  pure $ State (s { secondsElapsed = toFixed (x / 1000.0) 2.0
+                  , genCounter = 0.0
                   , genRatio = s.genCounter })
 
 genRandomGeneration state = do
@@ -150,14 +151,14 @@ genRandomGeneration state = do
 -- | This is the application's state machine. It maps `Action`s to new `State`s
 processStateFactory :: Rx.Observable Boolean
                   ->  (forall e. Action -> State
-                              -> Eff (now :: Now, trace :: Trace, random :: Random | e) State)
+                              -> Eff (now :: Now, console :: CONSOLE, random :: RANDOM | e) State)
 processStateFactory playPauseStream = processState
   where
   processState Tick              state = pure $ calculateNewGeneration state
   processState Play              state = pure $ play playPauseStream state
   processState Pause             state = pure $ pause playPauseStream state
   processState Toggle            state = pure $ toggle playPauseStream state
-  processState Save              state = (trace <<< show $ state) *> pure state
+  processState Save              state = (log <<< show $ state) *> pure state
   processState (Point y x)       state = pure $ addPoint state y x
   processState (NoPoint y x)     state = pure $ removePoint state y x
   processState (TogglePoint y x) state = pure $ togglePoint state y x

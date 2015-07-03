@@ -2,13 +2,14 @@ module Types where
 
 import Data.Date
 import Data.Maybe
+import Prelude
 
 type Generation = Array (Array Cell)
 
-data State = State { cells        :: Array Generation
-                   , runningState :: RunStatus
-                   , current      :: Maybe Number
-                   , startTime    :: Date
+data State = State { cells          :: Array Generation
+                   , runningState   :: RunStatus
+                   , current        :: Maybe Int
+                   , startTime      :: Date
                    , secondsElapsed :: Number
                    , genCounter     :: Number
                    , genRatio       :: Number
@@ -24,17 +25,17 @@ instance showState :: Show State where
                         ++ ", secondsElapsed: " ++ show s.secondsElapsed
                         ++ "}"
 
-data Action = Point Number Number
-            | NoPoint Number Number
-            | TogglePoint Number Number
+data Action = Point Int Int
+            | NoPoint Int Int
+            | TogglePoint Int Int
             | Tick
             | Pause
             | Play
             | Toggle
             | Save
             | NewCells Generation
-            | Rewind Number
-            | FForward Number
+            | Rewind Int
+            | FForward Int
             | Timer
             | RandomGen
 
@@ -56,12 +57,9 @@ instance showAction :: Show Action where
 data Cell = Alive | Dead
 
 instance eqCell :: Eq Cell where
-    (==) Alive Alive = true
-    (==) Dead Dead   = true
-    (==) _ _         = false
-
-    (/=) a b         = not $ (==) a b
-
+    eq Alive Alive = true
+    eq Dead Dead   = true
+    eq _ _         = false
 
 instance showCell :: Show Cell where
     show Alive = "Alive"
@@ -74,8 +72,6 @@ instance showRunStatus :: Show RunStatus where
     show Paused  = "Paused"
 
 instance eqRunStatus :: Eq RunStatus where
-    (==) Running Running = true
-    (==) Paused  Paused  = true
-    (==) _       _       = false
-
-    (/=) a       b       = not $ (==) a b
+    eq Running Running = true
+    eq Paused  Paused  = true
+    eq _       _       = false

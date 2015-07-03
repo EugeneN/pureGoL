@@ -5,7 +5,6 @@ import Control.Apply
 import Control.Monad.Eff (Eff(..))
 import Data.Function
 import Data.Maybe
-import Debug.Trace
 import qualified Rx.Observable as Rx
 
 import Core
@@ -16,6 +15,7 @@ import qualified UI.Canvas as UICanvas
 import qualified UI.Console as UIConsole
 import Utils
 
+import Prelude
 
 main = do
   uiParam <- getParameterByName "ui"
@@ -48,7 +48,7 @@ main = do
 
   processState = processStateFactory ticksPlayPauseStream
 
-  timerStream = (\_ -> Timer) <$> (getIntervalStream 1000)
+  timerStream = (\_ -> Timer) <$> (getIntervalStream 1000.0)
 
   ticksStream = (\_ -> Tick) <$> (getIntervalStream initialSpeed)
   pausableTicksStream = pausable ticksStream ticksPlayPauseStream

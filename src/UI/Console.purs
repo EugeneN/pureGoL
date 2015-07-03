@@ -5,17 +5,18 @@ import Types
 import Utils
 
 import Control.Monad.Eff (Eff(..))
-import Debug.Trace
+import Control.Monad.Eff.Console
 import Data.Array
 import Data.Function
 import Data.Tuple
 import Data.Foldable
 import qualified Rx.Observable as Rx
+import Prelude
 
-foreign import exportGlobal :: forall e a. String -> (Number -> Number -> Eff e Unit) -> Eff e Unit
+foreign import exportGlobal :: forall e a. String -> (Int -> Int -> Eff e Unit) -> Eff e Unit
 
 
-setupUI :: forall e. State -> Rx.Observable Action -> String -> Eff (trace :: Trace | e) (Rx.Observable State)
+setupUI :: forall e. State -> Rx.Observable Action -> String -> Eff (console :: CONSOLE | e) (Rx.Observable State)
 setupUI state actionsStream _ = do
     let vStream = runFn0 newSubject
 
@@ -29,7 +30,7 @@ setupUI state actionsStream _ = do
 
     where
 
-    printCells state = trace charCells
+    printCells state = log charCells
         where
         currentGeneration = getCurrentGeneration state
         charCells = foldRows currentGeneration

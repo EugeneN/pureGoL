@@ -1,5 +1,8 @@
 module KeyCodes where
 
+import Utils
+import Prelude
+
 data KeyCode = Insert
              | Escape
              | Enter
@@ -14,7 +17,7 @@ data KeyCode = Insert
              | RightArrow
              | Rsmall
              | Rbig
-             | UnknownKey Number
+             | UnknownKey Int
 
 keyEventToKeyCode :: forall a. a -> KeyCode
 keyEventToKeyCode x | which x == 13  = Enter
@@ -35,20 +38,18 @@ keyEventToKeyCode x | which x == 13  = Enter
 keyEventToKeyCode x                  = UnknownKey $ which x
 
 instance eqKeyCode :: Eq KeyCode where
-    (==) Insert Insert = true
-    (==) Escape Escape = true
-    (==) Enter  Enter  = true
-    (==) Delete Delete = true
-    (==) F1     F1     = true
-    (==) F2     F2     = true
-    (==) F3     F3     = true
-    (==) F4     F4     = true
-    (==) F5     F5     = true
-    (==) Space  Space  = true
-    (==) LeftArrow   LeftArrow   = true
-    (==) RightArrow  RightArrow  = true
-    (==) Rbig        Rbig        = true
-    (==) Rsmall      Rsmall      = true
-    (==) _      _      = false
-    (/=) a      b      = not $ (==) a b
-
+    eq Insert Insert = true
+    eq Escape Escape = true
+    eq Enter  Enter  = true
+    eq Delete Delete = true
+    eq F1     F1     = true
+    eq F2     F2     = true
+    eq F3     F3     = true
+    eq F4     F4     = true
+    eq F5     F5     = true
+    eq Space  Space  = true
+    eq LeftArrow   LeftArrow   = true
+    eq RightArrow  RightArrow  = true
+    eq Rbig        Rbig        = true
+    eq Rsmall      Rsmall      = true
+    eq _      _      = false
