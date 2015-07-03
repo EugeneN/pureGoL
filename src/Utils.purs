@@ -60,3 +60,5 @@ foreign import getParameterByName :: forall e. String -> Eff e String
 foreign import displayBlock :: forall e. String -> Eff (dom :: DOM | e) Unit
 
 foreign import which :: forall a. a -> Int
+
+foreign import toHex :: Int -> String

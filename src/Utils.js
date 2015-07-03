@@ -30,3 +30,7 @@ exports.getParameterByName = function (name) {
 }
 exports.displayBlock = function (elid) {return function() {document.getElementById(elid).style.display = "block"} }
 exports.which = function (ev) { return ev.which; }
+exports.toHex = function (n) {
+  var nybHexString = "0123456789ABCDEF";
+  return String(nybHexString.substr((n >> 4) & 0x0F,1)) + nybHexString.substr(n & 0x0F,1);
+}

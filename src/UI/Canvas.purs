@@ -51,6 +51,9 @@ gridColor   = "#F8F8F8"
 cellColor   = black
 labelColor  = black
 
+freq = 0.2
+renderLoopInterval = 50.0
+
 data Color = Color { r :: Int, g :: Int, b :: Int }
 
 instance eqColor :: Eq Color where
@@ -81,17 +84,14 @@ instance ringColor :: Ring Color where
     sub (Color a) (Color b) = Color { r: (a.r - b.r), g: (a.g - b.g), b: (a.b - b.b) }
 
 instance showColor :: Show Color where
-    show (Color a) = "#" ++ show a.r ++ show a.g ++ show a.b
-
-data Direction = Up | Down
+    show (Color a) = "#" ++ toHex a.r ++ toHex a.g ++ toHex a.b
 
 data LocalState = LocalState { state :: State
                              , color :: Color
-                             , dir   :: Direction }
+                             , phase :: Number }
 
-minColor   = Color { r: 50,  g: 50,  b: 50  }
-maxColor   = Color { r: 220, g: 220, b: 220 }
-deltaColor = Color { r: 5,   g: 5,   b: 5 }
+startColor = Color { r: 0,  g: 0,  b: 0  }
+startPhase = 0.0
 
 foreign import fromUiEvent :: forall a e. e -> UIEvent -> Rx.Observable a
 
@@ -105,7 +105,7 @@ setupUI state outputActionsStream canvasId = do
     offtop <- getElementOffsetTop "canvas"
     offleft <- getElementOffsetLeft "canvas"
 
-    localState <- newRef $ LocalState { state: state, color: minColor, dir: Up }
+    localState <- newRef $ LocalState { state: state, color: startColor, phase: startPhase }
 
     let fieldOffsetTop = topOffset + offtop
         fieldOffsetLeft = leftOffset + offleft
@@ -128,24 +128,24 @@ setupUI state outputActionsStream canvasId = do
     renderLocalState canvas ls _ = do
         (LocalState s) <- readRef ls
 
-        let x = stepColor s.color s.dir
+        let x = stepColor s.color s.phase
         writeRef ls (LocalState (s { color = x.color
-                                   , dir = x.dir }))
-        renderCanvas canvas s.state s.color
+                                   , phase = x.phase }))
+        renderCanvas canvas s.state x.color
 
-    stepColor :: Color -> Direction -> {color :: Color, dir :: Direction}
-    stepColor cur dir =
-        case dir of
-            Up   -> let newColor = cur + deltaColor
-                    in if newColor < maxColor
-                           then {color: newColor, dir: Up}
-                           else stepColor cur Down
-            Down -> let newColor = cur - deltaColor
-                    in if newColor > minColor
-                           then {color: newColor, dir: Down}
-                           else stepColor cur Up
+    stepColor :: Color -> Number -> {color :: Color, phase :: Number}
+    stepColor cur phase =
+        let r' = (M.sin (freq * phase + 0.0)) * 127.0 + 128.0
+            g' = (M.sin (freq * phase + 2.0)) * 127.0 + 128.0
+            b' = (M.sin (freq * phase + 4.0)) * 127.0 + 128.0
 
-    renderLoop = getIntervalStream 16.0
+            r = maybe 0 id (fromNumber $ M.round r')
+            g = maybe 0 id (fromNumber $ M.round g')
+            b = maybe 0 id (fromNumber $ M.round b')
+        in { color: Color {r:r, g:g, b:b}
+           , phase: if phase < 32.0 then phase + 1.0 else 0.0 }
+
+    renderLoop = getIntervalStream renderLoopInterval
     postUpstream (Tuple x y) = onNext outputActionsStream $ (TogglePoint y x)
 
     currentGeneration   = getCurrentGeneration state
