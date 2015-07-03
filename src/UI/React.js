@@ -1,3 +1,3 @@
 // module UI.React
 
-function setProps(view) { return function(props) { return function(){ return view.setProps(props); } } }
+exports.setProps = function (view) { return function(props) { return function(){ return view.setProps(props); } } }

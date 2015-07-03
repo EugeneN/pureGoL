@@ -1,13 +1,13 @@
 // module Utils
-function timeDelta(a) { return function(b) { return b - a } }
-function toFixed(x) { return function(n) { return +x.toFixed(n) } }
-function hex(n) {return n.toString(16) }
-var newSubject = function () { return new Rx.Subject() }
-function fromEvent(ev) { return function() {return Rx.Observable.fromEvent(document.body, ev)} }
-function getIntervalStream(interval) { return Rx.Observable.interval(interval) }
-function onNext(obs){ return function(val) { return function () { return obs.onNext(val); } } }
-function pausable(obs){ return function (pauser) { return obs.pausable(pauser); } }
-function scan(f) {
+exports.timeDelta = function (a) { return function(b) { return b - a } }
+exports.toFixed = function (x) { return function(n) { return +x.toFixed(n) } }
+exports.hex = function (n) {return n.toString(16) }
+exports.newSubject = function () { return new Rx.Subject() }
+exports.fromEvent = function (ev) { return function() {return Rx.Observable.fromEvent(document.body, ev)} }
+exports.getIntervalStream = function (interval) { return Rx.Observable.interval(interval) }
+exports.onNext = function (obs){ return function(val) { return function () { return obs.onNext(val); } } }
+exports.pausable = function (obs){ return function (pauser) { return obs.pausable(pauser); } }
+exports.scan = function (f) {
     return function(seed) {
         return function(ob) {
             return function() {
@@ -18,9 +18,9 @@ function scan(f) {
         };
     };
 }
-function getElementOffsetLeft(el){ return function() { return document.getElementById(el).offsetLeft } }
-function getElementOffsetTop(el){ return function() { return document.getElementById(el).offsetTop } }
-function getParameterByName(name) {
+exports.getElementOffsetLeft = function (el){ return function() { return document.getElementById(el).offsetLeft } }
+exports.getElementOffsetTop = function (el){ return function() { return document.getElementById(el).offsetTop } }
+exports.getParameterByName = function (name) {
     return function() {
         name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
         var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
@@ -28,5 +28,5 @@ function getParameterByName(name) {
         return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
     }
 }
-function displayBlock(elid) {return function() {document.getElementById(elid).style.display = "block"} }
-function which(ev) { return ev.which; }
+exports.displayBlock = function (elid) {return function() {document.getElementById(elid).style.display = "block"} }
+exports.which = function (ev) { return ev.which; }
