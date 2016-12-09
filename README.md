@@ -2,7 +2,7 @@
 
 This is a Game of Life written in Purescript using Rx and React/Canvas/Console UIs.
 
-Demo: http://eugenen.github.io/pureGoL/
+Demo: http://eugenen.github.io/pureGoL-demo/
 
 Console UI video: https://www.youtube.com/watch?v=8G-d8XcT6pM&feature=youtu.be
 
@@ -18,7 +18,7 @@ type BL2UIChannel = Rx.Observable State
 type UI2BLChannel = Rx.Observable Action
 ```
 
-See http://eugenen.github.io/pureGoL/ for demo.
+See http://eugenen.github.io/pureGoL-demo/ for demo.
 
 # Run
 
